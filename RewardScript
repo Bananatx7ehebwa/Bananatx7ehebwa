@@ -1,0 +1,79 @@
+local rep = game.ReplicatedStorage:WaitForChild("Playtime")
+
+local rewardTimers = {
+	[1] = 300,
+	[2] = 600,
+	[3] = 800,
+	[4] = 1000,
+	[5] = 1500,
+	[6] = 3000
+}
+local activeRewards = {}
+
+-- Setup all GUI reward boxes
+for _, child in ipairs(script.Parent:GetChildren()) do
+	if child:IsA("ImageLabel") then
+		local num = child:FindFirstChild("Number")
+		local timerLabel = child:FindFirstChild("Timer")
+		local claimButton = child:FindFirstChild("Claim")
+
+		if num and timerLabel and claimButton then
+			local index = num.Value
+			local duration = rewardTimers[index]
+			local remaining = duration
+
+			-- Initial UI state
+			claimButton.Visible = false
+			timerLabel.Visible = true
+
+			-- Store info for countdown
+			table.insert(activeRewards, {
+				index = index,
+				gui = child,
+				timer = remaining,
+				unlocked = false,
+				label = timerLabel,
+				button = claimButton
+			})
+		end
+	end
+end
+
+-- Countdown logic
+task.spawn(function()
+	while true do
+		task.wait(1)
+
+		for _, reward in ipairs(activeRewards) do
+			if not reward.unlocked then
+				reward.timer -= 1
+
+				if reward.timer <= 0 then
+					reward.unlocked = true
+					reward.label.Text = "Ready!"
+					reward.button.Visible = true
+					script.Parent.Parent.Buttons.PlaytimeRewards.Notif.Visible = true
+				else
+					local mins = math.floor(reward.timer / 60)
+					local secs = reward.timer % 60
+					reward.label.Text = string.format("%d:%02d", mins, secs)
+				end
+			end
+		end
+	end
+end)
+
+-- Claim logic
+for _, reward in ipairs(activeRewards) do
+	reward.button.MouseButton1Click:Connect(function()
+		if reward.unlocked then
+			reward.label.Text = "Claimed!"
+			reward.button.Visible = false
+			reward.gui.ImageColor3 = Color3.fromRGB(80, 80, 80)
+			game.ReplicatedStorage.Sounds.Success:Play()
+			script.Parent.Parent.Buttons.PlaytimeRewards.Notif.Visible = false
+			
+			rep:FireServer(reward.index)
+		end
+	end)
+end
