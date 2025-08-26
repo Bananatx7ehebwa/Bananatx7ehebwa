@@ -1,0 +1,185 @@
+local P = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local LocalPlayer = P.LocalPlayer
+
+local Remote = RS.Remotes.x_x
+local AnimalsModule = require(RS.Datas.Animals)
+local MutationsModule = require(RS.Datas.Mutations)
+
+local Library = require(script.lib)
+local Window = Library:Window("Admin Panel", Color3.fromRGB(55, 238, 255), Enum.KeyCode.RightControl)
+
+local Info = Window:Tab("Info")
+local Misc = Window:Tab("Misc")
+local Animals = Window:Tab("Animals")
+local Events = Window:Tab("Events")
+local Announce = Window:Tab("Announce")
+local Data = Window:Tab("Data")
+
+local Flags = {
+	["event"] = "Bloodmoon",
+	["event_length"] = 60,
+	["annc_text"] = "Announcement",
+	
+	["animal"] = "Troll",
+	["mutations"] = {},
+	["animal_reciever"] = P.LocalPlayer.Name,
+	
+	["money"] = 1,
+	["money_reciever"] = P.LocalPlayer.Name
+}
+
+function GetAnimalsTable()
+	local tbl = {}
+	for i,v in pairs(AnimalsModule) do
+		table.insert(tbl,i)
+	end
+	return tbl
+end
+
+--
+
+Info:Label(string.format("Whitelisted (@%s)",LocalPlayer.Name))
+Info:Label("Press the RCTRL key to Open/Close the panel")
+Info:Label("Press the ENTER key after writing something in a TextBox")
+
+--
+
+Animals:Dropdown("Animal",GetAnimalsTable(), function(t)
+	Flags["animal"] = t
+end)
+
+
+for i,v in pairs(MutationsModule) do
+	Animals:Toggle(i,false, function(t)
+		if t == false then
+			if table.find(Flags.mutations,i) then
+				table.remove(Flags.mutations,table.find(Flags.mutations,i))
+			end
+		else
+			if not table.find(Flags.mutations,i) then
+				table.insert(Flags.mutations,i)
+			end
+		end
+	end)
+end
+
+Animals:Button("Spawn animal", function()
+	Remote:FireServer("spawn_animal",{
+		Flags["animal"],
+		Flags["mutations"]
+	})
+end)
+
+Animals:Textbox("Username",false, function(t)
+	Flags["animal_reciever"] = t
+end)
+
+Animals:Button("Give animal", function()
+	Remote:FireServer("give_animal",{
+		Flags["animal"],
+		Flags["mutations"],
+		Flags["animal_reciever"]
+	})
+end)
+
+--
+
+Misc:Textbox("Set gravity (Default: 196.2)",false, function(t)
+	if typeof(tonumber(t)) == "number" then
+		Remote:FireServer("set_gravity",{t})
+	end
+end)
+Misc:Textbox("Multiply server luck by",false, function(t)
+	if typeof(tonumber(t)) == "number" then
+		Remote:FireServer("set_server_luck",{t})
+	end
+end)
+Misc:Textbox("Money amount",false, function(t)
+	if typeof(tonumber(t)) == "number" then
+		Flags["money"] = t
+	end
+end)
+Misc:Textbox("Username",false, function(t)
+	Flags["money_reciever"] = t
+end)
+Misc:Button("Give money", function()
+	Remote:FireServer("give_money", {
+		Flags["money"], 
+		Flags["money_reciever"]
+	})
+end)
+Misc:Button("Set Money", function()
+	Remote:FireServer("set_money", {
+		Flags["money"], 
+		Flags["money_reciever"]
+		
+	})
+end)
+
+--
+
+Events:Dropdown("Event",{"Bloodmoon","Rainbow","TacoRain","Galactic","Nyan","Candy","CrabRave","Admin","TungTung"}, function(t)
+	Flags["event"] = t
+end)
+Events:Textbox("Event length (in seconds)",false, function(t)
+	if typeof(tonumber(t)) == "number" then
+		Flags["event_length"] = t
+	end
+end)
+Events:Button("Spawn event", function()
+	Remote:FireServer("spawn_event", {Flags["event"], Flags["event_length"]})
+end)
+Events:Button("Spawn global event", function()
+	Remote:FireServer("spawn_global_event", {Flags["event"], Flags["event_length"]})
+end)
+
+--
+
+Announce:Textbox("Announcement",true, function(t)
+	Flags["annc_text"] = t
+end)
+Announce:Button("Announce", function()
+	Remote:FireServer("announce", {Flags["annc_text"]})
+end)
+Announce:Button("Global announce", function()
+	Remote:FireServer("global_announce", {Flags["annc_text"]})
+end)
+
+--
+
+Data:Button("Reset save", function()
+	Remote:FireServer("reset_data", {})
+end)
+
+--[[
+
+--[[
+:Toggle("Toggle",false, function(t)
+	print(t)
+end)
+
+:Slider("Slider",0,100,30, function(t)
+	print(t)
+end)
+
+:Dropdown("Dropdown",{"Option 1","Option 2","Option 3","Option 4","Option 5"}, function(t)
+	print(t)
+end)
+
+:Colorpicker("Colorpicker",Color3.fromRGB(255,0,0), function(t)
+	print(t)
+end)
+
+:Textbox("Textbox",true, function(t)
+	print(t)
+end)
+
+:Bind("Bind",Enum.KeyCode.RightShift, function()
+	print("Pressed!")
+end)
+
+:Notification("Notification", "Hello!", "Hi!")
+
+:Label("Label")
+]]
