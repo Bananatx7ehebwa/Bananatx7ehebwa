@@ -1,252 +1,147 @@
----------------------------------------------------------
--- GUI PRINCIPAL
----------------------------------------------------------
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+--// GUI principal
+local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
 
----------------------------------------------------------
--- BOTÃO SKY ☆ RGB GIRANDO (CANTO DIREITO)
--- + ANIMAÇÃO POP
--- + SOM DE CLIQUE
----------------------------------------------------------
+local gui = Instance.new("ScreenGui")
+gui.Name = "SkyFishingUI"
+gui.ResetOnSpawn = false
+gui.Parent = CoreGui
 
-local clickSound = Instance.new("Sound")
-clickSound.SoundId = "rbxassetid://6549332152"
-clickSound.Volume = 1
+--// Botão SKY (abre/fecha o GUI)
+local openButton = Instance.new("TextButton")
+openButton.Name = "OpenButton"
+openButton.Size = UDim2.new(0, 70, 0, 30)
+openButton.Position = UDim2.new(1, -90, 0, 20)
+openButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+openButton.Text = "SKY ☆"
+openButton.TextScaled = true
+openButton.BorderSizePixel = 0
+openButton.Parent = gui
 
-local ToggleButton = Instance.new("Frame")
-ToggleButton.Parent = ScreenGui
-ToggleButton.Size = UDim2.new(0, 55, 0, 55)
-ToggleButton.Position = UDim2.new(1, -70, 0, 10)
-ToggleButton.BackgroundTransparency = 1
-
--- Botão interno
-local ButtonInner = Instance.new("TextButton", ToggleButton)
-ButtonInner.Size = UDim2.new(1, -10, 1, -10)
-ButtonInner.Position = UDim2.new(0.5, 0, 0.5, 0)
-ButtonInner.AnchorPoint = Vector2.new(0.5, 0.5)
-ButtonInner.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-ButtonInner.Text = "SKY ☆"
-ButtonInner.TextScaled = true
-ButtonInner.TextColor3 = Color3.fromRGB(255, 255, 255)
-ButtonInner.Font = Enum.Font.GothamBold
-ButtonInner.BorderSizePixel = 0
-clickSound.Parent = ButtonInner
-
-local CornerInner = Instance.new("UICorner", ButtonInner)
-CornerInner.CornerRadius = UDim.new(1, 0)
-
--- Borda RGB
-local RGBBorder = Instance.new("Frame", ToggleButton)
-RGBBorder.Size = UDim2.new(1, 0, 1, 0)
-RGBBorder.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-RGBBorder.BorderSizePixel = 0
-RGBBorder.ZIndex = -1
-
-local RGBCorner = Instance.new("UICorner", RGBBorder)
-RGBCorner.CornerRadius = UDim.new(1, 0)
-
-local RGBGradient = Instance.new("UIGradient", RGBBorder)
-RGBGradient.Rotation = 0
-RGBGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0, 255, 0)),
-    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 255)),
-    ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255, 0, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0)),
-})
-
--- Animação RGB Girando
+-- RGB girando
 task.spawn(function()
-    while true do
-        for i = 0, 360, 1 do
-            RGBGradient.Rotation = i
-            task.wait(0.01)
-        end
+    while task.wait(0.05) do
+        openButton.TextColor3 = Color3.fromHSV(tick() % 1, 1, 1)
     end
 end)
 
----------------------------------------------------------
--- JANELA PRINCIPAL
----------------------------------------------------------
+-- Som ao clicar
+local clickSound = Instance.new("Sound")
+clickSound.SoundId = "rbxassetid://6549339470"
+clickSound.Volume = 1
+clickSound.Parent = openButton
 
-local Frame = Instance.new("Frame")
-Frame.Parent = ScreenGui
-Frame.Size = UDim2.new(0, 260, 0, 200)
-Frame.Position = UDim2.new(0.05, 0, 0.38, 0)
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Frame.BorderSizePixel = 0
-Frame.Active = true
-Frame.Draggable = true
+--// Painel Principal
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 330, 0, 260)
+mainFrame.Position = UDim2.new(0.5, -165, 0.5, -130)
+mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = false
+mainFrame.Parent = gui
 
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 15)
+local uiCorner = Instance.new("UICorner", mainFrame)
+uiCorner.CornerRadius = UDim.new(0, 12)
 
-local guiOpen = true
+--// Painel superior de Status
+local statusBar = Instance.new("TextLabel")
+statusBar.Size = UDim2.new(1, 0, 0, 35)
+statusBar.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+statusBar.Text = "STATUS: PARADO"
+statusBar.TextScaled = true
+statusBar.TextColor3 = Color3.new(1,1,1)
+statusBar.BorderSizePixel = 0
+statusBar.Parent = mainFrame
+Instance.new("UICorner", statusBar)
 
----------------------------------------------------------
--- FUNÇÃO DE ABRIR / FECHAR GUI
----------------------------------------------------------
+--// Botões
+local autoFishBtn = Instance.new("TextButton", mainFrame)
+autoFishBtn.Size = UDim2.new(0, 260, 0, 50)
+autoFishBtn.Position = UDim2.new(0.5, -130, 0.25, 0)
+autoFishBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+autoFishBtn.Text = "Auto Pescar"
+autoFishBtn.TextScaled = true
+autoFishBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", autoFishBtn)
 
-local function fadeFrameContent(visible)
-    for _, obj in ipairs(Frame:GetChildren()) do
-        if obj ~= UICorner then
-            if obj:IsA("Frame") or obj:IsA("TextButton") or obj:IsA("TextLabel") then
-                TweenService:Create(obj, TweenInfo.new(0.25), {
-                    BackgroundTransparency = visible and 0 or 1,
-                    TextTransparency = visible and 0 or 1
-                }):Play()
-            end
-        end
-    end
-end
+local miniGameBtn = Instance.new("TextButton", mainFrame)
+miniGameBtn.Size = UDim2.new(0, 260, 0, 50)
+miniGameBtn.Position = UDim2.new(0.5, -130, 0.55, 0)
+miniGameBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+miniGameBtn.Text = "Auto Minigame"
+miniGameBtn.TextScaled = true
+miniGameBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", miniGameBtn)
 
-ButtonInner.MouseButton1Click:Connect(function()
+--------------------------------------------------------------------------------
+-- SISTEMA DE ABRIR E FECHAR GUI
+--------------------------------------------------------------------------------
+local guiOpen = false
 
+openButton.MouseButton1Click:Connect(function()
     clickSound:Play()
 
-    -- POP animation
-    local grow = TweenService:Create(ButtonInner, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
-        Size = UDim2.new(1, -5, 1, -5)
-    })
-    local shrink = TweenService:Create(ButtonInner, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
-        Size = UDim2.new(1, -10, 1, -10)
-    })
-
-    grow:Play()
-    grow.Completed:Wait()
-    shrink:Play()
-
-    -- Abrir / fechar
     guiOpen = not guiOpen
 
     if guiOpen then
-        TweenService:Create(Frame, TweenInfo.new(0.25), {
-            Size = UDim2.new(0, 260, 0, 200)
+        mainFrame.Visible = true
+        mainFrame.Size = UDim2.new(0, 330, 0, 0)
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+            Size = UDim2.new(0, 330, 0, 260)
         }):Play()
-
-        task.wait(0.15)
-        fadeFrameContent(true)
-
     else
-        fadeFrameContent(false)
-
-        task.wait(0.20)
-        TweenService:Create(Frame, TweenInfo.new(0.25), {
-            Size = UDim2.new(0, 260, 0, 0)
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {
+            Size = UDim2.new(0, 330, 0, 0)
         }):Play()
+        task.wait(0.3)
+        mainFrame.Visible = false
     end
 end)
 
----------------------------------------------------------
--- PAINEL DE STATUS
----------------------------------------------------------
+--------------------------------------------------------------------------------
+-- AUTOPESCAR
+--------------------------------------------------------------------------------
+local autoFishing = false
 
-local StatusPanel = Instance.new("Frame", Frame)
-StatusPanel.Size = UDim2.new(1, 0, 0, 45)
-StatusPanel.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
-StatusPanel.BorderSizePixel = 0
+autoFishBtn.MouseButton1Click:Connect(function()
+    autoFishing = not autoFishing
+    clickSound:Play()
 
-local StatusCorner = Instance.new("UICorner", StatusPanel)
-StatusCorner.CornerRadius = UDim.new(0, 12)
-
-local StatusText = Instance.new("TextLabel", StatusPanel)
-StatusText.Size = UDim2.new(1, 0, 1, 0)
-StatusText.Text = "AGUARDANDO..."
-StatusText.TextColor3 = Color3.new(1,1,1)
-StatusText.Font = Enum.Font.GothamBold
-StatusText.TextSize = 18
-StatusText.BackgroundTransparency = 1
-
-local StatusStroke = Instance.new("UIStroke", StatusPanel)
-StatusStroke.Thickness = 2
-StatusStroke.Color = Color3.fromRGB(255,255,255)
-StatusStroke.Transparency = 0.6
-
----------------------------------------------------------
--- CRIAR BOTÕES
----------------------------------------------------------
-
-local function createButton(text, color)
-    local btn = Instance.new("TextButton", Frame)
-    btn.Size = UDim2.new(1, -40, 0, 55)
-    btn.BackgroundColor3 = color
-    btn.Text = text
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 20
-    btn.BorderSizePixel = 0
-
-    local corner = Instance.new("UICorner", btn)
-    corner.CornerRadius = UDim.new(0, 12)
-
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Thickness = 2
-    stroke.Color = Color3.new(1,1,1)
-    stroke.Transparency = 0.35
-
-    btn.MouseEnter:Connect(function()
-        stroke.Transparency = 0
-        btn.BackgroundColor3 = btn.BackgroundColor3 + Color3.fromRGB(20,20,20)
-    end)
-
-    btn.MouseLeave:Connect(function()
-        stroke.Transparency = 0.35
-        btn.BackgroundColor3 = color
-    end)
-
-    return btn
-end
-
-local StartBtn = createButton("INICIAR", Color3.fromRGB(0, 170, 255))
-StartBtn.Position = UDim2.new(0, 20, 0, 60)
-
-local StopBtn = createButton("PARAR", Color3.fromRGB(255, 60, 60))
-StopBtn.Position = UDim2.new(0, 20, 0, 125)
-
----------------------------------------------------------
--- SISTEMA DOS SCRIPTS
----------------------------------------------------------
-
-local RodCastRunning = false
-local ClickRunning = false
-
-local function updateStatus()
-    if RodCastRunning and ClickRunning then
-        StatusText.Text = "PESCANDO + MINIGAME..."
-    elseif RodCastRunning then
-        StatusText.Text = "PESCANDO..."
-    elseif ClickRunning then
-        StatusText.Text = "FAZENDO MINIGAME..."
-    else
-        StatusText.Text = "AGUARDANDO..."
-    end
-end
-
-StartBtn.MouseButton1Click:Connect(function()
-    if RodCastRunning then return end
-
-    RodCastRunning = true
-    ClickRunning = true
-    updateStatus()
+    autoFishBtn.Text = autoFishing and "Auto Pescar: ON" or "Auto Pescar: OFF"
+    statusBar.Text = autoFishing and "PESCANDO..." or "STATUS: PARADO"
 
     task.spawn(function()
-        while RodCastRunning do
-            game:GetService("ReplicatedStorage").Packages.Net["RE/FishingRod.Cast"]:FireServer(0)
+        while autoFishing do
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("Packages")
+                :WaitForChild("Net")
+                :WaitForChild("RE/FishingRod.Cast"):FireServer(0)
             task.wait(10)
         end
     end)
+end)
+
+--------------------------------------------------------------------------------
+-- AUTOMINIGAME
+--------------------------------------------------------------------------------
+local autoMinigame = false
+
+miniGameBtn.MouseButton1Click:Connect(function()
+    autoMinigame = not autoMinigame
+    clickSound:Play()
+
+    miniGameBtn.Text = autoMinigame and "Auto Minigame: ON" or "Auto Minigame: OFF"
+    statusBar.Text = autoMinigame and "FAZENDO MINIGAME..." or "STATUS: PARADO"
 
     task.spawn(function()
-        while ClickRunning do
-            game:GetService("ReplicatedStorage").Packages.Net["RE/FishingRod.MinigameClick"]:FireServer()
+        while autoMinigame do
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("Packages")
+                :WaitForChild("Net")
+                :WaitForChild("RE/FishingRod.MinigameClick"):FireServer()
             task.wait(0.1)
         end
     end)
-end)
-
-StopBtn.MouseButton1Click:Connect(function()
-    RodCastRunning = false
-    ClickRunning = false
-    updateStatus()
 end)
