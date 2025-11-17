@@ -67,7 +67,7 @@ task.spawn(function()
 end)
 
 ---------------------------------------------------------
--- JANELA PRINCIPAL DO GUI
+-- JANELA PRINCIPAL
 ---------------------------------------------------------
 
 local Frame = Instance.new("Frame")
@@ -84,32 +84,58 @@ UICorner.CornerRadius = UDim.new(0, 15)
 
 local guiOpen = true
 
--- CLICK DO BOTÃO SKY ☆ (Agora com POP + som)
+---------------------------------------------------------
+-- FUNÇÃO DE ABRIR / FECHAR GUI
+---------------------------------------------------------
+
+local function fadeFrameContent(visible)
+    for _, obj in ipairs(Frame:GetChildren()) do
+        if obj ~= UICorner then
+            if obj:IsA("Frame") or obj:IsA("TextButton") or obj:IsA("TextLabel") then
+                TweenService:Create(obj, TweenInfo.new(0.25), {
+                    BackgroundTransparency = visible and 0 or 1,
+                    TextTransparency = visible and 0 or 1
+                }):Play()
+            end
+        end
+    end
+end
+
 ButtonInner.MouseButton1Click:Connect(function()
 
     clickSound:Play()
 
     -- POP animation
-    local grow = TweenService:Create(
-        ButtonInner,
-        TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-        {Size = UDim2.new(1, -5, 1, -5)}
-    )
-
-    local shrink = TweenService:Create(
-        ButtonInner,
-        TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In),
-        {Size = UDim2.new(1, -10, 1, -10)}
-    )
+    local grow = TweenService:Create(ButtonInner, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
+        Size = UDim2.new(1, -5, 1, -5)
+    })
+    local shrink = TweenService:Create(ButtonInner, TweenInfo.new(0.1, Enum.EasingStyle.Back), {
+        Size = UDim2.new(1, -10, 1, -10)
+    })
 
     grow:Play()
     grow.Completed:Wait()
     shrink:Play()
 
-    -- abrir/fechar gui
+    -- Abrir / fechar
     guiOpen = not guiOpen
-    local goal = { Size = guiOpen and UDim2.new(0, 260, 0, 200) or UDim2.new(0, 260, 0, 0) }
-    TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), goal):Play()
+
+    if guiOpen then
+        TweenService:Create(Frame, TweenInfo.new(0.25), {
+            Size = UDim2.new(0, 260, 0, 200)
+        }):Play()
+
+        task.wait(0.15)
+        fadeFrameContent(true)
+
+    else
+        fadeFrameContent(false)
+
+        task.wait(0.20)
+        TweenService:Create(Frame, TweenInfo.new(0.25), {
+            Size = UDim2.new(0, 260, 0, 0)
+        }):Play()
+    end
 end)
 
 ---------------------------------------------------------
@@ -138,7 +164,7 @@ StatusStroke.Color = Color3.fromRGB(255,255,255)
 StatusStroke.Transparency = 0.6
 
 ---------------------------------------------------------
--- FUNÇÃO CRIAR BOTÃO ESTILOSO
+-- CRIAR BOTÕES
 ---------------------------------------------------------
 
 local function createButton(text, color)
@@ -157,7 +183,7 @@ local function createButton(text, color)
     local stroke = Instance.new("UIStroke", btn)
     stroke.Thickness = 2
     stroke.Color = Color3.new(1,1,1)
-    stroke.Transparency = 0.4
+    stroke.Transparency = 0.35
 
     btn.MouseEnter:Connect(function()
         stroke.Transparency = 0
@@ -165,16 +191,12 @@ local function createButton(text, color)
     end)
 
     btn.MouseLeave:Connect(function()
-        stroke.Transparency = 0.4
+        stroke.Transparency = 0.35
         btn.BackgroundColor3 = color
     end)
 
     return btn
 end
-
----------------------------------------------------------
--- BOTÕES
----------------------------------------------------------
 
 local StartBtn = createButton("INICIAR", Color3.fromRGB(0, 170, 255))
 StartBtn.Position = UDim2.new(0, 20, 0, 60)
@@ -210,16 +232,14 @@ StartBtn.MouseButton1Click:Connect(function()
 
     task.spawn(function()
         while RodCastRunning do
-            game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.Cast"):FireServer(0)
+            game:GetService("ReplicatedStorage").Packages.Net["RE/FishingRod.Cast"]:FireServer(0)
             task.wait(10)
         end
     end)
 
     task.spawn(function()
         while ClickRunning do
-            game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.MinigameClick"):FireServer()
+            game:GetService("ReplicatedStorage").Packages.Net["RE/FishingRod.MinigameClick"]:FireServer()
             task.wait(0.1)
         end
     end)
