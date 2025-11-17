@@ -1,121 +1,191 @@
---== GUI BASE ==--
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+---------------------------------------------------------
+-- GUI PRINCIPAL (FECHAMENTO 100% CORRIGIDO)
+---------------------------------------------------------
+local TweenService = game:GetService("TweenService")
 
--- Criar ScreenGui
-local gui = Instance.new("ScreenGui")
-gui.Name = "SkyFishingUI"
-gui.Parent = game.CoreGui
-gui.IgnoreGuiInset = true
-gui.ResetOnSpawn = false
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "SkyFishingGui_Fixed"
 
---== BOTÃO FIXO "SKY ☆" ==--
-local toggleButton = Instance.new("TextButton")
-toggleButton.Parent = gui
-toggleButton.Size = UDim2.new(0, 90, 0, 35)
-toggleButton.Position = UDim2.new(1, -100, 0, 10) -- CANTO SUPERIOR DIREITO
-toggleButton.AnchorPoint = Vector2.new(0, 0)
-toggleButton.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
-toggleButton.Text = "SKY ☆"
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.Font = Enum.Font.GothamBold
-toggleButton.TextSize = 18
-toggleButton.AutoButtonColor = true
-toggleButton.BorderSizePixel = 0
-toggleButton.ZIndex = 9999 -- SEMPRE POR CIMA
+---------------------------------------------------------
+-- BOTÃO SKY ☆ (CANTO DIREITO)
+---------------------------------------------------------
+local ToggleButton = Instance.new("Frame")
+ToggleButton.Parent = ScreenGui
+ToggleButton.Size = UDim2.new(0, 55, 0, 55)
+ToggleButton.Position = UDim2.new(1, -70, 0, 10)
+ToggleButton.BackgroundTransparency = 1
 
---== FRAME PRINCIPAL ==--
-local mainFrame = Instance.new("Frame")
-mainFrame.Parent = gui
-mainFrame.Size = UDim2.new(0, 300, 0, 200)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-mainFrame.Visible = false
-mainFrame.ZIndex = 9998
+local ButtonInner = Instance.new("TextButton", ToggleButton)
+ButtonInner.Size = UDim2.new(1, -10, 1, -10)
+ButtonInner.Position = UDim2.new(0.5, 0, 0.5, 0)
+ButtonInner.AnchorPoint = Vector2.new(0.5, 0.5)
+ButtonInner.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+ButtonInner.Text = "SKY ☆"
+ButtonInner.TextScaled = true
+ButtonInner.TextColor3 = Color3.new(1,1,1)
+ButtonInner.Font = Enum.Font.GothamBold
+ButtonInner.BorderSizePixel = 0
 
-local UICorner = Instance.new("UICorner", mainFrame)
-UICorner.CornerRadius = UDim.new(0, 12)
+local CornerInner = Instance.new("UICorner", ButtonInner)
+CornerInner.CornerRadius = UDim.new(1, 0)
 
---== BOTÃO MINIMIZAR ==--
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Parent = mainFrame
-minimizeButton.Size = UDim2.new(0, 25, 0, 25)
-minimizeButton.Position = UDim2.new(1, -30, 0, 5)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-minimizeButton.Text = "-"
-minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-minimizeButton.Font = Enum.Font.GothamBlack
-minimizeButton.TextSize = 20
-minimizeButton.BorderSizePixel = 0
-minimizeButton.ZIndex = 9999
-
---== BOTÃO ATIVAR AUTO-FISH ==--
-local startButton = Instance.new("TextButton")
-startButton.Parent = mainFrame
-startButton.Size = UDim2.new(0, 250, 0, 50)
-startButton.Position = UDim2.new(0.5, -125, 0.5, -25)
-startButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-startButton.Text = "ATIVAR AUTO-FISH"
-startButton.TextColor3 = Color3.new(1, 1, 1)
-startButton.Font = Enum.Font.GothamBold
-startButton.TextSize = 22
-startButton.BorderSizePixel = 0
-startButton.ZIndex = 9999
-
-local UICorner2 = Instance.new("UICorner", startButton)
-UICorner2.CornerRadius = UDim.new(0, 8)
-
---== VARIABLES ==--
-local running = false
-
---== AUTO FISH FUNCTIONS ==--
-local function startFishing()
-    running = true
-    
-    task.spawn(function()
-        while running do
-            pcall(function()
-                game:GetService("ReplicatedStorage")
-                :WaitForChild("Packages")
-                :WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.Cast")
-                :FireServer(0)
-            end)
-            task.wait(1.5)
+-- Borda RGB (opcional)
+local RGBBorder = Instance.new("Frame", ToggleButton)
+RGBBorder.Size = UDim2.new(1, 0, 1, 0)
+RGBBorder.BorderSizePixel = 0
+RGBBorder.ZIndex = -1
+local RGBCorner = Instance.new("UICorner", RGBBorder)
+RGBCorner.CornerRadius = UDim.new(1, 0)
+local RGBGradient = Instance.new("UIGradient", RGBBorder)
+RGBGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
+    ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0,255,0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,0,255)),
+    ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255,0,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,0)),
+})
+task.spawn(function()
+    while true do
+        for i = 0, 360 do
+            RGBGradient.Rotation = i
+            task.wait(0.01)
         end
-    end)
+    end
+end)
 
+---------------------------------------------------------
+-- JANELA DO GUI
+---------------------------------------------------------
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 260, 0, 200)
+Frame.Position = UDim2.new(0.05, 0, 0.38, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true
+
+-- ESSENCIAL: recorta tudo que estiver fora do tamanho do Frame
+Frame.ClipsDescendants = true
+
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 15)
+
+local guiOpen = true
+Frame.Visible = true -- garante que começa visível
+
+---------------------------------------------------------
+-- PAINEL DE STATUS
+---------------------------------------------------------
+local StatusPanel = Instance.new("Frame", Frame)
+StatusPanel.Size = UDim2.new(1, 0, 0, 45)
+StatusPanel.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+StatusPanel.BorderSizePixel = 0
+local StatusCorner = Instance.new("UICorner", StatusPanel)
+StatusCorner.CornerRadius = UDim.new(0, 12)
+
+local StatusText = Instance.new("TextLabel", StatusPanel)
+StatusText.Size = UDim2.new(1, 0, 1, 0)
+StatusText.Text = "AGUARDANDO..."
+StatusText.Font = Enum.Font.GothamBold
+StatusText.TextSize = 18
+StatusText.TextColor3 = Color3.new(1,1,1)
+StatusText.BackgroundTransparency = 1
+
+---------------------------------------------------------
+-- BOTÃO PRINCIPAL (1 BOTÃO QUE ATIVA TUDO)
+---------------------------------------------------------
+local MainBtn = Instance.new("TextButton", Frame)
+MainBtn.Size = UDim2.new(1, -40, 0, 55)
+MainBtn.Position = UDim2.new(0, 20, 0, 70)
+MainBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+MainBtn.Text = "INICIAR AUTO-FISH"
+MainBtn.TextColor3 = Color3.new(1,1,1)
+MainBtn.Font = Enum.Font.GothamBold
+MainBtn.TextSize = 20
+MainBtn.BorderSizePixel = 0
+Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(0, 12)
+
+---------------------------------------------------------
+-- SISTEMA + LOOPS
+---------------------------------------------------------
+local tudoAtivo = false
+
+local function updateStatus()
+    StatusText.Text = tudoAtivo and "PESCANDO + MINIGAME..." or "AGUARDANDO..."
+end
+
+local function startCast()
     task.spawn(function()
-        while running do
+        while tudoAtivo do
+            local args = {0}
             pcall(function()
-                game:GetService("ReplicatedStorage")
-                :WaitForChild("Packages")
-                :WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.MinigameClick")
-                :FireServer()
+                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
+                    :WaitForChild("RE/FishingRod.Cast"):FireServer(unpack(args))
             end)
-            task.wait(0.03) -- MAIS RÁPIDO
+            task.wait(10)
         end
     end)
 end
 
---== BUTTON EVENTS ==--
+local function startMinigame()
+    task.spawn(function()
+        local vu = game:GetService("VirtualUser")
+        while tudoAtivo do
+            vu:Button1Down(Vector2.new(0,0))
+            vu:Button1Up(Vector2.new(0,0))
+            task.wait(0.01) -- ultra rápido
+        end
+    end)
+end
 
--- Abrir/fechar GUI
-toggleButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
+MainBtn.MouseButton1Click:Connect(function()
+    tudoAtivo = not tudoAtivo
+    updateStatus()
+
+    if tudoAtivo then
+        MainBtn.Text = "PARAR"
+        MainBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+        startCast()
+        startMinigame()
+    else
+        MainBtn.Text = "INICIAR AUTO-FISH"
+        MainBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    end
 end)
 
--- Minimizar GUI
-minimizeButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = false
-end)
+---------------------------------------------------------
+-- ABRIR / FECHAR GUI PELO SKY ☆ (FECHAMENTO 100%)
+---------------------------------------------------------
+-- Função que abre o frame (torna visível e anima tamanho)
+local function openFrame()
+    if Frame.Visible == false then
+        Frame.Visible = true
+    end
+    TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 260, 0, 200)
+    }):Play()
+    guiOpen = true
+end
 
--- Ativar Scripts
-startButton.MouseButton1Click:Connect(function()
-    if not running then
-        startButton.Text = "RODANDO..."
-        startFishing()
+-- Função que fecha o frame: anima para altura 0 e no Complete seta Visible = false
+local function closeFrame()
+    local tween = TweenService:Create(Frame, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 260, 0, 0)
+    })
+    tween:Play()
+    tween.Completed:Wait()
+    -- garante que nada fique visível
+    Frame.Visible = false
+    guiOpen = false
+end
+
+-- handler do botão SKY
+ButtonInner.MouseButton1Click:Connect(function()
+    if guiOpen then
+        closeFrame()
+    else
+        openFrame()
     end
 end)
