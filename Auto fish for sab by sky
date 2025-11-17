@@ -1,75 +1,114 @@
---------------------------------------------------------------------
--- GUI PRINCIPAL
---------------------------------------------------------------------
-local CoreGui = game:GetService("CoreGui")
+--== GUI BASE ==--
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
+-- Criar ScreenGui
 local gui = Instance.new("ScreenGui")
-gui.Name = "OneButtonFishing"
-gui.ResetOnSpawn = false
-gui.Parent = CoreGui
+gui.Name = "SkyFishingUI"
+gui.Parent = game.CoreGui
 
---------------------------------------------------------------------
--- BOTÃO ÚNICO
---------------------------------------------------------------------
-local Button = Instance.new("TextButton")
-Button.Size = UDim2.new(0, 180, 0, 55)
-Button.Position = UDim2.new(0.5, -90, 0.5, -27)
-Button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-Button.TextColor3 = Color3.new(1,1,1)
-Button.Font = Enum.Font.GothamBold
-Button.TextScaled = true
-Button.Text = "ATIVAR AUTO FISH"
-Button.Parent = gui
+--== BOTÃO FIXO "SKY ☆" ==--
+local toggleButton = Instance.new("TextButton")
+toggleButton.Parent = gui
+toggleButton.Size = UDim2.new(0, 90, 0, 35)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
+toggleButton.Text = "SKY ☆"
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.TextSize = 18
+toggleButton.AutoButtonColor = true
+toggleButton.BorderSizePixel = 0
+toggleButton.ZIndex = 10
 
-local corner = Instance.new("UICorner", Button)
-corner.CornerRadius = UDim.new(0, 14)
+--== FRAME PRINCIPAL DO GUI ==--
+local mainFrame = Instance.new("Frame")
+mainFrame.Parent = gui
+mainFrame.Size = UDim2.new(0, 300, 0, 200)
+mainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.Visible = false
 
-local stroke = Instance.new("UIStroke", Button)
-stroke.Color = Color3.fromRGB(255,255,255)
-stroke.Thickness = 2
-stroke.Transparency = 0.3
+local UICorner = Instance.new("UICorner", mainFrame)
+UICorner.CornerRadius = UDim.new(0, 12)
 
---------------------------------------------------------------------
--- SISTEMA DOS DOIS SCRIPTS (CAST + MINIGAME)
---------------------------------------------------------------------
+--== BOTÃO DE MINIMIZAR ==--
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Parent = mainFrame
+minimizeButton.Size = UDim2.new(0, 25, 0, 25)
+minimizeButton.Position = UDim2.new(1, -30, 0, 5)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+minimizeButton.Text = "-"
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.Font = Enum.Font.GothamBlack
+minimizeButton.TextSize = 20
+minimizeButton.BorderSizePixel = 0
 
+--== BOTÃO PARA ATIVAR OS SCRIPTS ==--
+local startButton = Instance.new("TextButton")
+startButton.Parent = mainFrame
+startButton.Size = UDim2.new(0, 250, 0, 50)
+startButton.Position = UDim2.new(0.5, -125, 0.5, -25)
+startButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+startButton.Text = "ATIVAR AUTO-FISH"
+startButton.TextColor3 = Color3.new(1, 1, 1)
+startButton.Font = Enum.Font.GothamBold
+startButton.TextSize = 22
+startButton.BorderSizePixel = 0
+
+local UICorner2 = Instance.new("UICorner", startButton)
+UICorner2.CornerRadius = UDim.new(0, 8)
+
+--== VARIABLES ==--
 local running = false
 
-Button.MouseButton1Click:Connect(function()
+--== FUNÇÃO DE PESCA ==--
+local function startFishing()
+    running = true
+    
+    task.spawn(function()
+        while running do
+            pcall(function()
+                game:GetService("ReplicatedStorage")
+                :WaitForChild("Packages")
+                :WaitForChild("Net")
+                :WaitForChild("RE/FishingRod.Cast")
+                :FireServer(0)
+            end)
+            task.wait(2)
+        end
+    end)
 
-    running = not running
+    task.spawn(function()
+        while running do
+            pcall(function()
+                game:GetService("ReplicatedStorage")
+                :WaitForChild("Packages")
+                :WaitForChild("Net")
+                :WaitForChild("RE/FishingRod.MinigameClick")
+                :FireServer()
+            end)
+            task.wait(0.05)
+        end
+    end)
+end
 
-    if running then
-        Button.Text = "DESATIVAR AUTO FISH"
-        Button.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
-    else
-        Button.Text = "ATIVAR AUTO FISH"
-        Button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+--== EVENTOS DOS BOTÕES ==--
+
+-- Abrir/fechar o GUI
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
+-- Minimizar o GUI
+minimizeButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- Ativar scripts
+startButton.MouseButton1Click:Connect(function()
+    if not running then
+        startButton.Text = "RODANDO..."
+        startFishing()
     end
-
-    ----------------------------------------------------------------
-    -- LOOP CAST (10s)
-    ----------------------------------------------------------------
-    task.spawn(function()
-        while running do
-            local Net = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
-
-            Net:WaitForChild("RE/FishingRod.Cast"):FireServer(0)
-
-            task.wait(10)
-        end
-    end)
-
-    ----------------------------------------------------------------
-    -- LOOP MINIGAME CLICK (Ultra Rápido)
-    ----------------------------------------------------------------
-    task.spawn(function()
-        while running do
-            local Net = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
-
-            Net:WaitForChild("RE/FishingRod.MinigameClick"):FireServer()
-
-            task.wait(0.02) -- ⬅ CLIQUES MUITO RÁPIDOS
-        end
-    end)
 end)
