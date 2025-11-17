@@ -6,12 +6,16 @@ local LocalPlayer = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
 gui.Name = "SkyFishingUI"
 gui.Parent = game.CoreGui
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 
 --== BOTÃO FIXO "SKY ☆" ==--
 local toggleButton = Instance.new("TextButton")
 toggleButton.Parent = gui
 toggleButton.Size = UDim2.new(0, 90, 0, 35)
-toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Position = UDim2.new(1, -100, 0, 10) -- CANTO SUPERIOR DIREITO
+toggleButton.AnchorPoint = Vector2.new(0, 0)
 toggleButton.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
 toggleButton.Text = "SKY ☆"
 toggleButton.TextColor3 = Color3.new(1, 1, 1)
@@ -19,20 +23,21 @@ toggleButton.Font = Enum.Font.GothamBold
 toggleButton.TextSize = 18
 toggleButton.AutoButtonColor = true
 toggleButton.BorderSizePixel = 0
-toggleButton.ZIndex = 10
+toggleButton.ZIndex = 9999 -- SEMPRE POR CIMA
 
---== FRAME PRINCIPAL DO GUI ==--
+--== FRAME PRINCIPAL ==--
 local mainFrame = Instance.new("Frame")
 mainFrame.Parent = gui
 mainFrame.Size = UDim2.new(0, 300, 0, 200)
 mainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
 mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 mainFrame.Visible = false
+mainFrame.ZIndex = 9998
 
 local UICorner = Instance.new("UICorner", mainFrame)
 UICorner.CornerRadius = UDim.new(0, 12)
 
---== BOTÃO DE MINIMIZAR ==--
+--== BOTÃO MINIMIZAR ==--
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Parent = mainFrame
 minimizeButton.Size = UDim2.new(0, 25, 0, 25)
@@ -43,8 +48,9 @@ minimizeButton.TextColor3 = Color3.new(1, 1, 1)
 minimizeButton.Font = Enum.Font.GothamBlack
 minimizeButton.TextSize = 20
 minimizeButton.BorderSizePixel = 0
+minimizeButton.ZIndex = 9999
 
---== BOTÃO PARA ATIVAR OS SCRIPTS ==--
+--== BOTÃO ATIVAR AUTO-FISH ==--
 local startButton = Instance.new("TextButton")
 startButton.Parent = mainFrame
 startButton.Size = UDim2.new(0, 250, 0, 50)
@@ -55,6 +61,7 @@ startButton.TextColor3 = Color3.new(1, 1, 1)
 startButton.Font = Enum.Font.GothamBold
 startButton.TextSize = 22
 startButton.BorderSizePixel = 0
+startButton.ZIndex = 9999
 
 local UICorner2 = Instance.new("UICorner", startButton)
 UICorner2.CornerRadius = UDim.new(0, 8)
@@ -62,7 +69,7 @@ UICorner2.CornerRadius = UDim.new(0, 8)
 --== VARIABLES ==--
 local running = false
 
---== FUNÇÃO DE PESCA ==--
+--== AUTO FISH FUNCTIONS ==--
 local function startFishing()
     running = true
     
@@ -75,7 +82,7 @@ local function startFishing()
                 :WaitForChild("RE/FishingRod.Cast")
                 :FireServer(0)
             end)
-            task.wait(2)
+            task.wait(1.5)
         end
     end)
 
@@ -88,24 +95,24 @@ local function startFishing()
                 :WaitForChild("RE/FishingRod.MinigameClick")
                 :FireServer()
             end)
-            task.wait(0.05)
+            task.wait(0.03) -- MAIS RÁPIDO
         end
     end)
 end
 
---== EVENTOS DOS BOTÕES ==--
+--== BUTTON EVENTS ==--
 
--- Abrir/fechar o GUI
+-- Abrir/fechar GUI
 toggleButton.MouseButton1Click:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
 end)
 
--- Minimizar o GUI
+-- Minimizar GUI
 minimizeButton.MouseButton1Click:Connect(function()
     mainFrame.Visible = false
 end)
 
--- Ativar scripts
+-- Ativar Scripts
 startButton.MouseButton1Click:Connect(function()
     if not running then
         startButton.Text = "RODANDO..."
