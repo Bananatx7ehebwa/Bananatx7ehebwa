@@ -1,147 +1,75 @@
---// GUI principal
+--------------------------------------------------------------------
+-- GUI PRINCIPAL
+--------------------------------------------------------------------
 local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
-local SoundService = game:GetService("SoundService")
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "SkyFishingUI"
+gui.Name = "OneButtonFishing"
 gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
---// Botão SKY (abre/fecha o GUI)
-local openButton = Instance.new("TextButton")
-openButton.Name = "OpenButton"
-openButton.Size = UDim2.new(0, 70, 0, 30)
-openButton.Position = UDim2.new(1, -90, 0, 20)
-openButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-openButton.Text = "SKY ☆"
-openButton.TextScaled = true
-openButton.BorderSizePixel = 0
-openButton.Parent = gui
+--------------------------------------------------------------------
+-- BOTÃO ÚNICO
+--------------------------------------------------------------------
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(0, 180, 0, 55)
+Button.Position = UDim2.new(0.5, -90, 0.5, -27)
+Button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+Button.TextColor3 = Color3.new(1,1,1)
+Button.Font = Enum.Font.GothamBold
+Button.TextScaled = true
+Button.Text = "ATIVAR AUTO FISH"
+Button.Parent = gui
 
--- RGB girando
-task.spawn(function()
-    while task.wait(0.05) do
-        openButton.TextColor3 = Color3.fromHSV(tick() % 1, 1, 1)
-    end
-end)
+local corner = Instance.new("UICorner", Button)
+corner.CornerRadius = UDim.new(0, 14)
 
--- Som ao clicar
-local clickSound = Instance.new("Sound")
-clickSound.SoundId = "rbxassetid://6549339470"
-clickSound.Volume = 1
-clickSound.Parent = openButton
+local stroke = Instance.new("UIStroke", Button)
+stroke.Color = Color3.fromRGB(255,255,255)
+stroke.Thickness = 2
+stroke.Transparency = 0.3
 
---// Painel Principal
-local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 330, 0, 260)
-mainFrame.Position = UDim2.new(0.5, -165, 0.5, -130)
-mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
-mainFrame.BorderSizePixel = 0
-mainFrame.Visible = false
-mainFrame.Parent = gui
+--------------------------------------------------------------------
+-- SISTEMA DOS DOIS SCRIPTS (CAST + MINIGAME)
+--------------------------------------------------------------------
 
-local uiCorner = Instance.new("UICorner", mainFrame)
-uiCorner.CornerRadius = UDim.new(0, 12)
+local running = false
 
---// Painel superior de Status
-local statusBar = Instance.new("TextLabel")
-statusBar.Size = UDim2.new(1, 0, 0, 35)
-statusBar.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
-statusBar.Text = "STATUS: PARADO"
-statusBar.TextScaled = true
-statusBar.TextColor3 = Color3.new(1,1,1)
-statusBar.BorderSizePixel = 0
-statusBar.Parent = mainFrame
-Instance.new("UICorner", statusBar)
+Button.MouseButton1Click:Connect(function()
 
---// Botões
-local autoFishBtn = Instance.new("TextButton", mainFrame)
-autoFishBtn.Size = UDim2.new(0, 260, 0, 50)
-autoFishBtn.Position = UDim2.new(0.5, -130, 0.25, 0)
-autoFishBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
-autoFishBtn.Text = "Auto Pescar"
-autoFishBtn.TextScaled = true
-autoFishBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", autoFishBtn)
+    running = not running
 
-local miniGameBtn = Instance.new("TextButton", mainFrame)
-miniGameBtn.Size = UDim2.new(0, 260, 0, 50)
-miniGameBtn.Position = UDim2.new(0.5, -130, 0.55, 0)
-miniGameBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
-miniGameBtn.Text = "Auto Minigame"
-miniGameBtn.TextScaled = true
-miniGameBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", miniGameBtn)
-
---------------------------------------------------------------------------------
--- SISTEMA DE ABRIR E FECHAR GUI
---------------------------------------------------------------------------------
-local guiOpen = false
-
-openButton.MouseButton1Click:Connect(function()
-    clickSound:Play()
-
-    guiOpen = not guiOpen
-
-    if guiOpen then
-        mainFrame.Visible = true
-        mainFrame.Size = UDim2.new(0, 330, 0, 0)
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {
-            Size = UDim2.new(0, 330, 0, 260)
-        }):Play()
+    if running then
+        Button.Text = "DESATIVAR AUTO FISH"
+        Button.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
     else
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {
-            Size = UDim2.new(0, 330, 0, 0)
-        }):Play()
-        task.wait(0.3)
-        mainFrame.Visible = false
+        Button.Text = "ATIVAR AUTO FISH"
+        Button.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
     end
-end)
 
---------------------------------------------------------------------------------
--- AUTOPESCAR
---------------------------------------------------------------------------------
-local autoFishing = false
-
-autoFishBtn.MouseButton1Click:Connect(function()
-    autoFishing = not autoFishing
-    clickSound:Play()
-
-    autoFishBtn.Text = autoFishing and "Auto Pescar: ON" or "Auto Pescar: OFF"
-    statusBar.Text = autoFishing and "PESCANDO..." or "STATUS: PARADO"
-
+    ----------------------------------------------------------------
+    -- LOOP CAST (10s)
+    ----------------------------------------------------------------
     task.spawn(function()
-        while autoFishing do
-            game:GetService("ReplicatedStorage")
-                :WaitForChild("Packages")
-                :WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.Cast"):FireServer(0)
+        while running do
+            local Net = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
+
+            Net:WaitForChild("RE/FishingRod.Cast"):FireServer(0)
+
             task.wait(10)
         end
     end)
-end)
 
---------------------------------------------------------------------------------
--- AUTOMINIGAME
---------------------------------------------------------------------------------
-local autoMinigame = false
-
-miniGameBtn.MouseButton1Click:Connect(function()
-    autoMinigame = not autoMinigame
-    clickSound:Play()
-
-    miniGameBtn.Text = autoMinigame and "Auto Minigame: ON" or "Auto Minigame: OFF"
-    statusBar.Text = autoMinigame and "FAZENDO MINIGAME..." or "STATUS: PARADO"
-
+    ----------------------------------------------------------------
+    -- LOOP MINIGAME CLICK (Ultra Rápido)
+    ----------------------------------------------------------------
     task.spawn(function()
-        while autoMinigame do
-            game:GetService("ReplicatedStorage")
-                :WaitForChild("Packages")
-                :WaitForChild("Net")
-                :WaitForChild("RE/FishingRod.MinigameClick"):FireServer()
-            task.wait(0.1)
+        while running do
+            local Net = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
+
+            Net:WaitForChild("RE/FishingRod.MinigameClick"):FireServer()
+
+            task.wait(0.02) -- ⬅ CLIQUES MUITO RÁPIDOS
         end
     end)
 end)
