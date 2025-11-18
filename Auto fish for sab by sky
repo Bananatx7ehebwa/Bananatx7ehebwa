@@ -1,8 +1,76 @@
 ---------------------------------------------------------
--- GUI PRINCIPAL (FECHAMENTO 100% CORRIGIDO)
+-- TELA DE CARREGAMENTO SKY HUB ☆ (0% → 100%)
 ---------------------------------------------------------
 local TweenService = game:GetService("TweenService")
 
+local LoadingGui = Instance.new("ScreenGui")
+LoadingGui.Parent = game.CoreGui
+LoadingGui.IgnoreGuiInset = true
+LoadingGui.Name = "SKY_LOADING"
+
+local Bg = Instance.new("Frame", LoadingGui)
+Bg.BackgroundColor3 = Color3.fromRGB(10, 15, 25)
+Bg.Size = UDim2.new(1, 0, 1, 0)
+
+-- animação azul/verde
+task.spawn(function()
+	while Bg do
+		Bg.BackgroundColor3 = Color3.fromRGB(20, 80, 255)
+		task.wait(0.5)
+		Bg.BackgroundColor3 = Color3.fromRGB(0, 200, 120)
+		task.wait(0.5)
+	end
+end)
+
+local Box = Instance.new("Frame", Bg)
+Box.Size = UDim2.new(0, 350, 0, 130)
+Box.Position = UDim2.new(0.5, -175, 0.5, -65)
+Box.BackgroundColor3 = Color3.fromRGB(25, 40, 60)
+Box.BorderSizePixel = 0
+Box.AnchorPoint = Vector2.new(0.5, 0.5)
+Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 14)
+
+local Title = Instance.new("TextLabel", Box)
+Title.Size = UDim2.new(1, 0, 0, 70)
+Title.BackgroundTransparency = 1
+Title.Text = "SKY HUB ☆ CARREGANDO.. $$"
+Title.TextColor3 = Color3.fromRGB(180, 255, 220)
+Title.Font = Enum.Font.GothamBold
+Title.TextScaled = true
+
+local Percent = Instance.new("TextLabel", Box)
+Percent.Size = UDim2.new(1, 0, 0, 50)
+Percent.Position = UDim2.new(0, 0, 0, 65)
+Percent.BackgroundTransparency = 1
+Percent.Text = "0%"
+Percent.TextColor3 = Color3.fromRGB(200, 255, 200)
+Percent.Font = Enum.Font.GothamBold
+Percent.TextScaled = true
+
+-- animação inicial
+Box.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(Box, TweenInfo.new(0.4, Enum.EasingStyle.Back), {
+	Size = UDim2.new(0, 350, 0, 130)
+}):Play()
+
+-- CONTADOR 0 → 100
+for i = 0,100 do
+	Percent.Text = i .. "%"
+	task.wait(0.02)
+end
+
+-- fechar carregamento
+TweenService:Create(Box, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {
+	Size = UDim2.new(0, 0, 0, 0)
+}):Play()
+TweenService:Create(Bg, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+task.wait(0.5)
+LoadingGui:Destroy()
+
+
+---------------------------------------------------------
+-- GUI PRINCIPAL (FECHAMENTO 100% CORRIGIDO)
+---------------------------------------------------------
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game.CoreGui
 ScreenGui.Name = "SkyFishingGui_Fixed"
@@ -26,32 +94,29 @@ ButtonInner.TextScaled = true
 ButtonInner.TextColor3 = Color3.new(1,1,1)
 ButtonInner.Font = Enum.Font.GothamBold
 ButtonInner.BorderSizePixel = 0
+Instance.new("UICorner", ButtonInner).CornerRadius = UDim.new(1, 0)
 
-local CornerInner = Instance.new("UICorner", ButtonInner)
-CornerInner.CornerRadius = UDim.new(1, 0)
-
--- Borda RGB (opcional)
+-- RGB BORDA
 local RGBBorder = Instance.new("Frame", ToggleButton)
 RGBBorder.Size = UDim2.new(1, 0, 1, 0)
 RGBBorder.BorderSizePixel = 0
 RGBBorder.ZIndex = -1
-local RGBCorner = Instance.new("UICorner", RGBBorder)
-RGBCorner.CornerRadius = UDim.new(1, 0)
+Instance.new("UICorner", RGBBorder).CornerRadius = UDim.new(1, 0)
 local RGBGradient = Instance.new("UIGradient", RGBBorder)
 RGBGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
-    ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0,255,0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,0,255)),
-    ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255,0,255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,0)),
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,0)),
+	ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0,255,0)),
+	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,0,255)),
+	ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255,0,255)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,0)),
 })
 task.spawn(function()
-    while true do
-        for i = 0, 360 do
-            RGBGradient.Rotation = i
-            task.wait(0.01)
-        end
-    end
+	while true do
+		for i = 0, 360 do
+			RGBGradient.Rotation = i
+			task.wait(0.01)
+		end
+	end
 end)
 
 ---------------------------------------------------------
@@ -65,15 +130,11 @@ Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.Draggable = true
-
--- ESSENCIAL: recorta tudo que estiver fora do tamanho do Frame
 Frame.ClipsDescendants = true
-
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 15)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
 
 local guiOpen = true
-Frame.Visible = true -- garante que começa visível
+Frame.Visible = true
 
 ---------------------------------------------------------
 -- PAINEL DE STATUS
@@ -82,8 +143,7 @@ local StatusPanel = Instance.new("Frame", Frame)
 StatusPanel.Size = UDim2.new(1, 0, 0, 45)
 StatusPanel.BackgroundColor3 = Color3.fromRGB(0, 140, 255)
 StatusPanel.BorderSizePixel = 0
-local StatusCorner = Instance.new("UICorner", StatusPanel)
-StatusCorner.CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", StatusPanel).CornerRadius = UDim.new(0, 12)
 
 local StatusText = Instance.new("TextLabel", StatusPanel)
 StatusText.Size = UDim2.new(1, 0, 1, 0)
@@ -94,7 +154,7 @@ StatusText.TextColor3 = Color3.new(1,1,1)
 StatusText.BackgroundTransparency = 1
 
 ---------------------------------------------------------
--- BOTÃO PRINCIPAL (1 BOTÃO QUE ATIVA TUDO)
+-- BOTÃO PRINCIPAL (ATIVA CAST + MINIGAME)
 ---------------------------------------------------------
 local MainBtn = Instance.new("TextButton", Frame)
 MainBtn.Size = UDim2.new(1, -40, 0, 55)
@@ -113,79 +173,68 @@ Instance.new("UICorner", MainBtn).CornerRadius = UDim.new(0, 12)
 local tudoAtivo = false
 
 local function updateStatus()
-    StatusText.Text = tudoAtivo and "PESCANDO + MINIGAME..." or "AGUARDANDO..."
+	StatusText.Text = tudoAtivo and "PESCANDO + MINIGAME..." or "AGUARDANDO..."
 end
 
 local function startCast()
-    task.spawn(function()
-        while tudoAtivo do
-            local args = {0}
-            pcall(function()
-                game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Net")
-                    :WaitForChild("RE/FishingRod.Cast"):FireServer(unpack(args))
-            end)
-            task.wait(10)
-        end
-    end)
+	task.spawn(function()
+		while tudoAtivo do
+			local args = {0}
+			pcall(function()
+				game:GetService("ReplicatedStorage").Packages.Net["RE/FishingRod.Cast"]:FireServer(unpack(args))
+			end)
+			task.wait(10)
+		end
+	end)
 end
 
 local function startMinigame()
-    task.spawn(function()
-        local vu = game:GetService("VirtualUser")
-        while tudoAtivo do
-            vu:Button1Down(Vector2.new(0,0))
-            vu:Button1Up(Vector2.new(0,0))
-            task.wait(0.01) -- ultra rápido
-        end
-    end)
+	task.spawn(function()
+		local vu = game:GetService("VirtualUser")
+		while tudoAtivo do
+			vu:Button1Down(Vector2.new(0,0))
+			vu:Button1Up(Vector2.new(0,0))
+			task.wait(0.01)
+		end
+	end)
 end
 
 MainBtn.MouseButton1Click:Connect(function()
-    tudoAtivo = not tudoAtivo
-    updateStatus()
+	tudoAtivo = not tudoAtivo
+	updateStatus()
 
-    if tudoAtivo then
-        MainBtn.Text = "PARAR"
-        MainBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-        startCast()
-        startMinigame()
-    else
-        MainBtn.Text = "INICIAR AUTO-FISH"
-        MainBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-    end
+	if tudoAtivo then
+		MainBtn.Text = "PARAR"
+		MainBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+		startCast()
+		startMinigame()
+	else
+		MainBtn.Text = "INICIAR AUTO-FISH"
+		MainBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+	end
 end)
 
 ---------------------------------------------------------
--- ABRIR / FECHAR GUI PELO SKY ☆ (FECHAMENTO 100%)
+-- ABRIR / FECHAR GUI
 ---------------------------------------------------------
--- Função que abre o frame (torna visível e anima tamanho)
 local function openFrame()
-    if Frame.Visible == false then
-        Frame.Visible = true
-    end
-    TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 260, 0, 200)
-    }):Play()
-    guiOpen = true
+	Frame.Visible = true
+	TweenService:Create(Frame, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 260, 0, 200)
+	}):Play()
+	guiOpen = true
 end
 
--- Função que fecha o frame: anima para altura 0 e no Complete seta Visible = false
 local function closeFrame()
-    local tween = TweenService:Create(Frame, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 260, 0, 0)
-    })
-    tween:Play()
-    tween.Completed:Wait()
-    -- garante que nada fique visível
-    Frame.Visible = false
-    guiOpen = false
+	local tween = TweenService:Create(Frame, TweenInfo.new(0.22, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 260, 0, 0)
+	})
+	tween:Play()
+	tween.Completed:Wait()
+	Frame.Visible = false
+	guiOpen = false
 end
 
--- handler do botão SKY
 ButtonInner.MouseButton1Click:Connect(function()
-    if guiOpen then
-        closeFrame()
-    else
-        openFrame()
-    end
+	if guiOpen then closeFrame() else openFrame() end
 end)
