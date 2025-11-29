@@ -1,0 +1,93 @@
+--== GUI COM 2 BOTÕES E BOTÃO DE ABRIR/FECHAR ==--
+
+local player = game:GetService("Players").LocalPlayer
+
+-- Criando ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "TwoScriptGUI"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+--== BOTÃO TOGGLE (CANTO SUPERIOR DIREITO) ==--
+local toggleBtn = Instance.new("TextButton", gui)
+toggleBtn.Size = UDim2.new(0, 60, 0, 30)
+toggleBtn.Position = UDim2.new(1, -70, 0, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Text = "GUI"
+toggleBtn.TextScaled = true
+toggleBtn.BorderSizePixel = 0
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 10)
+
+--== FRAME PRINCIPAL ==--
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+frame.BackgroundTransparency = 0.1
+frame.BorderSizePixel = 0
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 15)
+
+-- Botão 1
+local btn1 = Instance.new("TextButton", frame)
+btn1.Size = UDim2.new(1, -20, 0, 70)
+btn1.Position = UDim2.new(0, 10, 0, 10)
+btn1.Text = "Ativar Script 1"
+btn1.BackgroundColor3 = Color3.fromRGB(40, 120, 255)
+btn1.TextScaled = true
+btn1.BorderSizePixel = 0
+Instance.new("UICorner", btn1).CornerRadius = UDim.new(0, 12)
+
+-- Botão 2
+local btn2 = Instance.new("TextButton", frame)
+btn2.Size = UDim2.new(1, -20, 0, 70)
+btn2.Position = UDim2.new(0, 10, 0, 90)
+btn2.Text = "Ativar Script 2"
+btn2.BackgroundColor3 = Color3.fromRGB(255, 80, 60)
+btn2.TextScaled = true
+btn2.BorderSizePixel = 0
+Instance.new("UICorner", btn2).CornerRadius = UDim.new(0, 12)
+
+--------------------------------------------------------------------------------
+--== SEUS SCRIPTS ==--
+
+local function script1()
+    local admin = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("Admin")
+    if admin and admin:FindFirstChild("Admin") then
+        admin.Admin.Visible = true
+    end
+end
+
+local function script2()
+    local admin = player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("Admin")
+    if admin and admin:FindFirstChild("Admin") then
+        admin.Admin.Visible = false
+    end
+end
+--------------------------------------------------------------------------------
+
+-- Execução dos botões
+btn1.MouseButton1Click:Connect(function()
+    pcall(script1)
+end)
+
+btn2.MouseButton1Click:Connect(function()
+    pcall(script2)
+end)
+
+--------------------------------------------------------------------------------
+--== SISTEMA DE ABRIR / FECHAR GUI ==--
+
+local aberto = true
+
+toggleBtn.MouseButton1Click:Connect(function()
+    aberto = not aberto
+
+    if aberto then
+        frame.Visible = true
+        toggleBtn.Text = "GUI"
+    else
+        frame.Visible = false
+        toggleBtn.Text = "ABRIR"
+    end
+end)
