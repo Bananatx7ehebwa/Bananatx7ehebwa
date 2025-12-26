@@ -11,7 +11,7 @@ local NetPackages = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Net
 
 local PLOTS_NAME = "Plots"
 local WEBHOOK_URLS = {
-    "https://discord.com/api/webhooks/1451412470114549911/xy4zhUhL-47MAhaKLQYQbeaz0R2vV5GEE2gG1ocCpowPtVxt_ymnIoJeJnMwl0XGJnas"
+    "https://discord.com/api/webhooks/1451412462015610992/9neR8WzyUCMtLKjC7SH5c2nNNUURTRRnSO8eDrUloiU3hxJL28KHEnv4Xg4sqqhNp2dq"
     
 }
 local Min_Gen = 2000
@@ -1195,4 +1195,5 @@ end
 
 Players.PlayerAdded:Connect(function(plr)
 	connectKickToPlayer(plr)
+
 end)
