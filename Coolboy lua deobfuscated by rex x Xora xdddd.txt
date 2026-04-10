@@ -1,0 +1,1303 @@
+--[[
+ .____                  ________ ___.    _____                           __                
+ |    |    __ _______   \_____  \\_ |___/ ____\_ __  ______ ____ _____ _/  |_  ___________ 
+ |    |   |  |  \__  \   /   |   \| __ \   __\  |  \/  ___// ___\\__  \\   __\/  _ \_  __ \
+ |    |___|  |  // __ \_/    |    \ \_\ \  | |  |  /\___ \\  \___ / __ \|  | (  <_> )  | \/
+ |_______ \____/(____  /\_______  /___  /__| |____//____  >\___  >____  /__|  \____/|__|   
+         \/          \/         \/    \/                \/     \/     \/                   
+          \_Welcome to LuaObfuscator.com   (Alpha 0.10.9) ~  Much Love, Ferib 
+
+
+]] --
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+local Workspace = Workspace
+local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-pin/CompKiller/refs/heads/main/src/source.luau"))()
+local NotificationSystem = UILibrary.newNotify()
+local ConfigManger = UILibrary:ConfigManager({Directory = "Unnamed-UI", Config = "Main-Config"})
+UILibrary:Loader("rbxassetid://120245531583106", 1525.5 - (1098 + 425)).yield()
+local v11 =
+    UILibrary.new(
+    {
+        Name = "rex x xora deobfuscated ur script :rofl: ",
+        Keybind = "LeftAlt",
+        Logo = "rbxassetid://120245531583106",
+        Scale = UILibrary.Scale.Window,
+        TextSize = 15
+    }
+)
+NotificationSystem.new(
+    {
+        Title = "Notification",
+        Content = "rex x xora deobfuscated ur script :rofl: loaded successfully!",
+        Duration = 7 - 2,
+        Icon = "rbxassetid://120245531583106"
+    }
+)
+local Watermark = v11:Watermark()
+Watermark:AddText({Icon = "user", Text = "rex x xora deobfuscated ur script :rofl:"})
+Watermark:AddText({Icon = "clock", Text = UILibrary:GetDate()})
+local TextThingy = Watermark:AddText({Icon = "timer", Text = "TIME"})
+task.spawn(
+    function()
+        while true do
+            task.wait()
+            TextThingy:SetText(UILibrary:GetTimeNow())
+        end
+    end
+)
+Watermark:AddText({Icon = "server", Text = "v2.1"})
+getgenv().venus = {
+    Enabled = false,
+    AimPart = "Head",
+    Prediction = 0.12588 - 0,
+    Smoothness = 0.7,
+    ShakeValue = 1413 - (447 + 966),
+    AutoPred = true,
+    Loaded = false,
+    AntiAimViewer = true,
+    LookAtEnabled = false,
+    JumpOffset = 0 - 0,
+    AutoAirEnabled = false,
+    Safety = false,
+    SafetyValue = 1817.5 - (1703 + 114),
+    ShowTargetDot = false,
+    DotColor = Color3.fromRGB(776 - (376 + 325), 0, 213 - 83),
+    cframe = {
+        enabled = false,
+        speed = 5 - 3,
+        TargetStrafe = {
+            Enabled = false,
+            StrafeSpeed = 3 + 7,
+            StrafeRadius = 7,
+            StrafeHeight = 3,
+            RandomizerMode = false
+        }
+    },
+    AntiGroundShots = {enabled = false, value = 0.5},
+    FOV = {
+        Enabled = true,
+        Size = 28 - 15,
+        Centered = false,
+        Visible = true,
+        Filled = false,
+        Color = Color3.fromRGB(269 - (9 + 5), 376 - (85 + 291), 0)
+    },
+    desync = {sky = false, invis = false, jump = false, network = false},
+    Misc = {LowGfx = false},
+    FPSunlocker = {Enabled = true, FPSCap = 2264 - (243 + 1022)},
+    Resolver = {Enable = false}
+}
+getgenv().targetaim = {enabled = false, targetPart = "UpperTorso", prediction = 0.12588}
+v11:DrawCategory({Name = "Main"})
+local v16 = v11:DrawTab({Name = "Main", Icon = "sword", EnableScrolling = true})
+local v17 = v16:DrawSection({Name = "Aimbot", Position = "left"})
+local v18 =
+    v17:AddToggle(
+    {Name = "Enable Aimbot", Flag = "Aimbot_Enabled", Default = false, Callback = function(v107)
+            venus.Enabled = v107
+        end}
+)
+local v19 =
+    v17:AddToggle(
+    {Name = "Show Target Dot", Flag = "Aimbot_Dot", Default = false, Callback = function(v109)
+            venus.ShowTargetDot = v109
+            if (not v109 and TargetDot) then
+                local v212 = 0 - 0
+                while true do
+                    if (v212 == (0 + 0)) then
+                        TargetDot:Remove()
+                        TargetDot = nil
+                        break
+                    end
+                end
+            end
+        end}
+)
+local v20 =
+    v17:AddDropdown(
+    {
+        Name = "Hitpart",
+        Flag = "Aimbot_Hitpart",
+        Default = "Head",
+        Values = {
+            "Head",
+            "UpperTorso",
+            "HumanoidRootPart",
+            "LowerTorso",
+            "LeftUpperArm",
+            "RightUpperArm",
+            "LeftLeg",
+            "RightLeg"
+        },
+        Callback = function(v111)
+            venus.AimPart = v111
+        end
+    }
+)
+local v21 =
+    v17:AddToggle(
+    {Name = "Enable Look At", Flag = "Aimbot_LookAt", Default = false, Callback = function(v113)
+            venus.LookAtEnabled = v113
+        end}
+)
+local v22 =
+    v17:AddTextBox(
+    {Name = "Shake Intensity", Flag = "Aimbot_Shake_Text", Default = "0", Callback = function(v115)
+            local v116 = 0 + 0
+            local v117
+            while true do
+                if (v116 == 0) then
+                    v117 = tonumber(v115)
+                    if v117 then
+                        local v254 = 0
+                        while true do
+                            if (v254 == (0 - 0)) then
+                                v117 = math.clamp(v117, 0.1 + 0, 1484 - (1329 + 145))
+                                venus.ShakeValue = v117
+                                break
+                            end
+                        end
+                    else
+                        ShakeTextBox:SetText(tostring(venus.ShakeValue))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v23 = v16:DrawSection({Name = "Prediction", Position = "right"})
+local v24 =
+    v23:AddToggle(
+    {Name = "Auto Prediction", Flag = "Prediction_Auto", Default = true, Callback = function(v118)
+            venus.AutoPred = v118
+        end}
+)
+local v25 =
+    v23:AddTextBox(
+    {Name = "Prediction Value", Flag = "Prediction_Text", Default = "0.12588", Callback = function(v120)
+            local v121 = tonumber(v120)
+            if v121 then
+                v121 = math.clamp(v121, 971.00000000001 - (140 + 831), 1)
+                venus.Prediction = v121
+            else
+                PredictionTextBox:SetText(tostring(venus.Prediction))
+            end
+        end}
+)
+local v26 =
+    v23:AddTextBox(
+    {Name = "Smoothness Value", Flag = "Smoothness_Text", Default = "0.7", Callback = function(v122)
+            local v123 = 1850 - (1409 + 441)
+            local v124
+            while true do
+                if (v123 == 0) then
+                    v124 = tonumber(v122)
+                    if v124 then
+                        local v255 = 0
+                        while true do
+                            if ((718 - (15 + 703)) == v255) then
+                                v124 = math.clamp(v124, 0.01, 1)
+                                venus.Smoothness = v124
+                                break
+                            end
+                        end
+                    else
+                        SmoothnessTextBox:SetText(tostring(venus.Smoothness))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v27 =
+    v23:AddTextBox(
+    {Name = "Jump Offset", Flag = "Jump_Offset_Text", Default = "0", Callback = function(v125)
+            local v126 = 0 + 0
+            local v127
+            while true do
+                if (v126 == (438 - (262 + 176))) then
+                    v127 = tonumber(v125)
+                    if v127 then
+                        local v256 = 0
+                        while true do
+                            if (v256 == 0) then
+                                v127 = math.clamp(v127, -(1731 - (345 + 1376)), 698 - (198 + 490))
+                                venus.JumpOffset = v127
+                                break
+                            end
+                        end
+                    else
+                        JumpOffsetTextBox:SetText(tostring(venus.JumpOffset))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v28 = v16:DrawSection({Name = "Safety", Position = "right"})
+local v29 =
+    v28:AddToggle(
+    {Name = "Anti Ground Shots", Flag = "Safety_AntiGround", Default = false, Callback = function(v128)
+            venus.AntiGroundShots.enabled = v128
+        end}
+)
+local v30 =
+    v28:AddTextBox(
+    {Name = "Anti Ground Value", Flag = "Safety_AntiGround_Text", Default = "0.5", Callback = function(v130)
+            local v131 = tonumber(v130)
+            if v131 then
+                v131 = math.clamp(v131, 0.1 - 0, 1)
+                venus.AntiGroundShots.value = v131
+            else
+                AntiGroundTextBox:SetText(tostring(venus.AntiGroundShots.value))
+            end
+        end}
+)
+local v31 = v16:DrawSection({Name = "Target Aim", Position = "left"})
+local v32 =
+    v31:AddToggle(
+    {Name = "Enable Target Aim", Flag = "TargetAim_Enabled", Default = false, Callback = function(v132)
+            targetaim.enabled = v132
+        end}
+)
+local v33 =
+    v31:AddDropdown(
+    {
+        Name = "Target Part",
+        Flag = "TargetAim_Part",
+        Default = "UpperTorso",
+        Values = {"Head", "UpperTorso", "HumanoidRootPart", "LowerTorso"},
+        Callback = function(v134)
+            targetaim.targetPart = v134
+        end
+    }
+)
+local v34 =
+    v31:AddTextBox(
+    {Name = "Target Aim Prediction", Flag = "TargetAim_Prediction_Text", Default = "0.12588", Callback = function(v136)
+            local v137 = 1262 - (1091 + 171)
+            local v138
+            while true do
+                if (v137 == 0) then
+                    v138 = tonumber(v136)
+                    if v138 then
+                        local v257 = 0 + 0
+                        while true do
+                            if (v257 == (0 - 0)) then
+                                v138 = math.clamp(v138, 1e-11 - 0, 1)
+                                targetaim.prediction = v138
+                                break
+                            end
+                        end
+                    else
+                        TargetAimPredictionTextBox:SetText(tostring(targetaim.prediction))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v35 = v16:DrawSection({Name = "Target Strafe", Position = "right"})
+local v36 =
+    v35:AddToggle(
+    {Name = "Enable Target Strafe", Flag = "TargetStrafe_Enabled", Default = false, Callback = function(v139)
+            venus.cframe.TargetStrafe.Enabled = v139
+        end}
+)
+local v37 =
+    v35:AddTextBox(
+    {Name = "Strafe Speed", Flag = "TargetStrafe_Speed_Text", Default = "10", Callback = function(v141)
+            local v142 = 0
+            local v143
+            while true do
+                if (v142 == (374 - (123 + 251))) then
+                    v143 = tonumber(v141)
+                    if v143 then
+                        v143 = math.clamp(v143, 1, 99 - 79)
+                        venus.cframe.TargetStrafe.StrafeSpeed = v143
+                    else
+                        StrafeSpeedTextBox:SetText(tostring(venus.cframe.TargetStrafe.StrafeSpeed))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v38 =
+    v35:AddTextBox(
+    {Name = "Strafe Radius", Flag = "TargetStrafe_Radius_Text", Default = "7", Callback = function(v144)
+            local v145 = tonumber(v144)
+            if v145 then
+                v145 = math.clamp(v145, 699 - (208 + 490), 2 + 13)
+                venus.cframe.TargetStrafe.StrafeRadius = v145
+            else
+                StrafeRadiusTextBox:SetText(tostring(venus.cframe.TargetStrafe.StrafeRadius))
+            end
+        end}
+)
+local v39 =
+    v35:AddTextBox(
+    {Name = "Strafe Height", Flag = "TargetStrafe_Height_Text", Default = "3", Callback = function(v146)
+            local v147 = tonumber(v146)
+            if v147 then
+                local v216 = 0
+                while true do
+                    if (v216 == (0 + 0)) then
+                        v147 = math.clamp(v147, 837 - (660 + 176), 2 + 8)
+                        venus.cframe.TargetStrafe.StrafeHeight = v147
+                        break
+                    end
+                end
+            else
+                StrafeHeightTextBox:SetText(tostring(venus.cframe.TargetStrafe.StrafeHeight))
+            end
+        end}
+)
+local v40 =
+    v35:AddToggle(
+    {Name = "Randomizer Mode", Flag = "TargetStrafe_Randomizer", Default = false, Callback = function(v148)
+            venus.cframe.TargetStrafe.RandomizerMode = v148
+        end}
+)
+local v41 = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local v42 = Instance.new("ScreenGui")
+v42.Name = "LockScreenGui"
+v42.Parent = v41
+v42.ResetOnSpawn = false
+local v46 = Instance.new("ImageButton")
+v46.Name = "LockButton"
+v46.Size = UDim2.new(202 - (14 + 188), 80, 675 - (534 + 141), 33 + 47)
+v46.Position = UDim2.new(0.5, -(222 + 28), 0.8 + 0, -(472 - 247))
+v46.Image = "rbxassetid://132627442593301"
+v46.BackgroundColor3 = Color3.fromRGB(31 - 11, 20, 56 - 36)
+v46.BackgroundTransparency = 0.45
+v46.Parent = v42
+v46.Active = true
+v46.Draggable = true
+local v56 = Instance.new("UICorner")
+v56.CornerRadius = UDim.new(0 + 0, 7 + 3)
+v56.Parent = v46
+local v59 = false
+local v60 = nil
+local v61 = nil
+local function v62()
+    if v61 then
+        v61:Remove()
+        v61 = nil
+    end
+    if (v59 and v60 and v60.Character and v60.Character:FindFirstChild(venus.AimPart) and venus.ShowTargetDot) then
+        local v217 = 0
+        while true do
+            if (v217 == (397 - (115 + 281))) then
+                v61.Color = venus.DotColor
+                v61.Thickness = 2 - 1
+                v217 = 2 + 0
+            end
+            if ((0 - 0) == v217) then
+                v61 = Drawing.new("Circle")
+                v61.Visible = true
+                v217 = 3 - 2
+            end
+            if (v217 == (869 - (550 + 317))) then
+                v61.Filled = true
+                v61.Radius = 3 - 0
+                break
+            end
+        end
+    end
+end
+_G.PRED = 0.057
+_G.PART = "HumanoidRootPart"
+_G.Frame = Vector3.new(0 - 0, 0.53 - 0, 285 - (134 + 151))
+_G.AIR_OFFSET = Vector3.new(1665 - (970 + 695), -(3.3 - 1), 1990 - (582 + 1408))
+local function v63()
+    local v150 = 0
+    local v151
+    local v152
+    while true do
+        if (v150 == 0) then
+            v151 = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+            v152 = tonumber(string.split(v151, " ")[1])
+            v150 = 3 - 2
+        end
+        if ((1 - 0) == v150) then
+            return (v152 / (3768 - 2768)) + _G.PRED
+        end
+    end
+end
+local function v64(v153)
+    if (not v153 or not v153.Character or not v153.Character:FindFirstChild(_G.PART)) then
+        return nil
+    end
+    local v154 = v153.Character[_G.PART]
+    local v155 = _G.Frame
+    if (v153.Character.Humanoid.Jump and (v153.Character.Humanoid.FloorMaterial == Enum.Material.Air)) then
+        v155 = _G.AIR_OFFSET
+    end
+    local v156 = v63()
+    return v154.Position + v155 + (v154.Velocity * v156)
+end
+local function v65()
+    local v157 = nil
+    local v158 = math.huge
+    local v159 = Vector2.new(Camera.ViewportSize.X / (1826 - (1195 + 629)), Camera.ViewportSize.Y / 2)
+    local v160 = 30
+    for v198, v199 in pairs(Players:GetPlayers()) do
+        if
+            ((v199 ~= LocalPlayer) and v199.Character and v199.Character:FindFirstChild(venus.AimPart) and
+                v199.Character:FindFirstChild("Humanoid") and
+                (v199.Character.Humanoid.Health > (0 - 0)))
+         then
+            local v232 = v199.Character[venus.AimPart]
+            local v233 = v232.Position - Camera.CFrame.Position
+            local v234 = v233.Magnitude
+            local v235, v236 = Camera:WorldToViewportPoint(v232.Position)
+            if v236 then
+                local v266 = 241 - (187 + 54)
+                local v267
+                while true do
+                    if (v266 == 0) then
+                        v267 = math.deg(math.acos(Camera.CFrame.LookVector:Dot(v233.Unit)))
+                        if (v267 <= v160) then
+                            local v329 = (Vector2.new(v235.X, v235.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                            local v330 = (v329 * (780.02 - (162 + 618))) + (v267 * 0.03)
+                            if (v267 < (4 + 1)) then
+                                v330 = v330 * 0.001
+                            end
+                            local v331 = Ray.new(Camera.CFrame.Position, v233.Unit * v234)
+                            local v332 = Workspace:FindPartOnRayWithIgnoreList(v331, {LocalPlayer.Character})
+                            if ((not v332 or v332:IsDescendantOf(v199.Character)) and (v330 < v158)) then
+                                v157 = v199
+                                v158 = v330
+                            end
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+    return v157
+end
+local function v66()
+    v59 = not v59
+    if v59 then
+        local v218 = 0
+        while true do
+            if (v218 == 0) then
+                v60 = v65()
+                if v60 then
+                    local v296 = 0 - 0
+                    while true do
+                        if (v296 == 1) then
+                            if venus.ShowTargetDot then
+                                v62()
+                            end
+                            break
+                        end
+                        if (v296 == 0) then
+                            v46.Image = "rbxassetid://132627442593301"
+                            NotificationSystem.new(
+                                {
+                                    Title = "Locked",
+                                    Content = "Locked onto: " .. v60.Name,
+                                    Duration = 4 - 1,
+                                    Icon = "rbxassetid://120245531583106"
+                                }
+                            )
+                            v296 = 1
+                        end
+                    end
+                else
+                    local v297 = 0 + 0
+                    while true do
+                        if (v297 == (1636 - (1373 + 263))) then
+                            v59 = false
+                            v46.Image = "rbxassetid://132627442593301"
+                            v297 = 1001 - (451 + 549)
+                        end
+                        if (v297 == (1 + 0)) then
+                            NotificationSystem.new(
+                                {
+                                    Title = "No Target",
+                                    Content = "No valid target found",
+                                    Duration = 4 - 1,
+                                    Icon = "rbxassetid://120245531583106"
+                                }
+                            )
+                            if v61 then
+                                v61:Remove()
+                                v61 = nil
+                            end
+                            break
+                        end
+                    end
+                end
+                break
+            end
+        end
+    else
+        v60 = nil
+        v46.Image = "rbxassetid://132627442593301"
+        NotificationSystem.new({Title = "Unlocked", Content = "Target unlocked", Duration = 3, Icon = "rbxassetid://120245531583106"})
+        if v61 then
+            local v241 = 0 - 0
+            while true do
+                if (v241 == (1384 - (746 + 638))) then
+                    v61:Remove()
+                    v61 = nil
+                    break
+                end
+            end
+        end
+    end
+end
+v46.MouseButton1Click:Connect(v66)
+UserInputService.InputBegan:Connect(
+    function(v161, v162)
+        if ((v161.KeyCode == Enum.KeyCode.Q) and not v162) then
+            v66()
+        end
+    end
+)
+local function v67()
+    if (venus.Enabled and v60 and v60.Character and v60.Character:FindFirstChild(venus.AimPart)) then
+        local v220 = v64(v60)
+        if v220 then
+            local v242 = 0 + 0
+            local v243
+            while true do
+                if (v242 == (1 - 0)) then
+                    v243 = CFrame.new(Camera.CFrame.Position, v220)
+                    Camera.CFrame = Camera.CFrame:Lerp(v243, venus.Smoothness)
+                    break
+                end
+                if (0 == v242) then
+                    if (venus.ShakeValue > (341 - (218 + 123))) then
+                        local v323 =
+                            Vector3.new(((math.random() * (1583 - (1535 + 46))) - 1) * venus.ShakeValue, 0 + 0, 0 + 0)
+                        v220 = v220 + v323
+                    end
+                    if venus.ShowTargetDot then
+                        local v324 = 560 - (306 + 254)
+                        local v325
+                        while true do
+                            if (v324 == 1) then
+                                if (v325.Z > (0 + 0)) then
+                                    v61.Position = Vector2.new(v325.X, v325.Y)
+                                    v61.Visible = true
+                                else
+                                    v61.Visible = false
+                                end
+                                break
+                            end
+                            if (v324 == (0 - 0)) then
+                                if not v61 then
+                                    v62()
+                                end
+                                v325 = Camera:WorldToViewportPoint(v220)
+                                v324 = 1468 - (899 + 568)
+                            end
+                        end
+                    end
+                    v242 = 1 + 0
+                end
+            end
+        end
+    elseif v61 then
+        v61.Visible = false
+    end
+end
+local function v68()
+    if
+        (venus.cframe.TargetStrafe.Enabled and v60 and v60.Character and
+            v60.Character:FindFirstChild("HumanoidRootPart"))
+     then
+        local v221 = 0 - 0
+        local v222
+        while true do
+            if (v221 == 0) then
+                v222 = LocalPlayer.Character
+                if (v222 and v222:FindFirstChild("HumanoidRootPart")) then
+                    local v299 = 603 - (268 + 335)
+                    local v300
+                    local v301
+                    local v302
+                    local v303
+                    while true do
+                        if (v299 == (291 - (60 + 230))) then
+                            v302 =
+                                Vector3.new(
+                                math.cos(v301) * venus.cframe.TargetStrafe.StrafeRadius,
+                                venus.cframe.TargetStrafe.StrafeHeight,
+                                math.sin(v301) * venus.cframe.TargetStrafe.StrafeRadius
+                            )
+                            if venus.cframe.TargetStrafe.RandomizerMode then
+                                v302 = v302 * ((572.8 - (426 + 146)) + (math.random() * 0.4))
+                            end
+                            v299 = 1 + 1
+                        end
+                        if (v299 == 2) then
+                            v303 = v300 + v302
+                            v303 = Vector3.new(v303.X, math.max(v303.Y, v300.Y), v303.Z)
+                            v299 = 3
+                        end
+                        if (v299 == (1459 - (282 + 1174))) then
+                            v222:SetPrimaryPartCFrame(CFrame.new(v303))
+                            v222.HumanoidRootPart.CFrame =
+                                CFrame.new(
+                                v222.HumanoidRootPart.Position,
+                                Vector3.new(v300.X, v222.HumanoidRootPart.Position.Y, v300.Z)
+                            )
+                            break
+                        end
+                        if (v299 == (811 - (569 + 242))) then
+                            v300 = v60.Character.HumanoidRootPart.Position
+                            v301 = tick() * venus.cframe.TargetStrafe.StrafeSpeed
+                            v299 = 2 - 1
+                        end
+                    end
+                end
+                break
+            end
+        end
+    end
+end
+local function v69()
+    if (venus.AutoAirEnabled and v60 and v60.Character) then
+        local v223 = 0
+        local v224
+        while true do
+            if (v223 == (0 + 0)) then
+                v224 = v60.Character:FindFirstChild("HumanoidRootPart")
+                if v224 then
+                    local v304 = 0
+                    local v305
+                    while true do
+                        if (v304 == (1024 - (706 + 318))) then
+                            v305 = v224.Velocity
+                            if (v305.Y > (1276 - (721 + 530))) then
+                                local v347 = LocalPlayer.Character
+                                if v347 then
+                                    local v357 = v347:FindFirstChildOfClass("Tool")
+                                    if v357 then
+                                        v357:Activate()
+                                    end
+                                end
+                            end
+                            break
+                        end
+                    end
+                end
+                break
+            end
+        end
+    end
+end
+RunService.RenderStepped:Connect(
+    function()
+        if v59 then
+            if venus.Enabled then
+                v67()
+            end
+            v69()
+            if venus.cframe.TargetStrafe.Enabled then
+                v68()
+            end
+        end
+    end
+)
+local v70 = getrawmetatable(game)
+local v71 = v70.__namecall
+setreadonly(v70, false)
+v70.__namecall =
+    newcclosure(
+    function(v163, ...)
+        local v164 = {...}
+        local v165 = getnamecallmethod()
+        if (not checkcaller() and (v165 == "FireServer") and targetaim.enabled and v60 and v60.Character) then
+            local v225 = 0 - 0
+            local v226
+            while true do
+                if (v225 == (0 + 0)) then
+                    v226 = v60.Character[targetaim.targetPart]
+                    if v226 then
+                        for v314, v315 in ipairs(v164) do
+                            if (typeof(v315) == "Vector3") then
+                                v164[v314] =
+                                    v226.Position + (v226.Velocity * venus.Prediction) +
+                                    Vector3.new(0, venus.JumpOffset, 700 - (271 + 429))
+                                break
+                            end
+                        end
+                    end
+                    break
+                end
+            end
+        end
+        return v71(v163, unpack(v164))
+    end
+)
+setreadonly(v70, true)
+v11:DrawCategory({Name = "Visuals"})
+local v73 = v11:DrawTab({Name = "Visuals", Icon = "eye", EnableScrolling = true})
+local v74 = v73:DrawSection({Name = "Crosshair", Position = "right"})
+local v75 =
+    v74:AddToggle(
+    {Name = "Crosshair", Flag = "Crosshair_Enabled", Default = false, Callback = function(v166)
+            CrosshairEnabled = v166
+        end}
+)
+local v76 =
+    v74:AddToggle(
+    {Name = "Filled", Flag = "Crosshair_Filled", Default = false, Callback = function(v167)
+            circleFilled = v167
+            if circleInstance then
+                circleInstance.Filled = v167
+            end
+        end}
+)
+local v77 =
+    v74:AddColorPicker(
+    {
+        Name = "Color",
+        Flag = "Crosshair_Color",
+        Default = Color3.fromRGB(235 + 20, 1755 - (1408 + 92), 1341 - (461 + 625)),
+        Callback = function(v168)
+            if circleInstance then
+                circleInstance.Color = v168
+            end
+        end
+    }
+)
+local v78 =
+    v74:AddTextBox(
+    {Name = "FOV Size", Flag = "FOV_Size_Text", Default = "13", Callback = function(v169)
+            local v170 = 1288 - (993 + 295)
+            local v171
+            while true do
+                if (v170 == (0 + 0)) then
+                    v171 = tonumber(v169)
+                    if v171 then
+                        local v270 = 1171 - (418 + 753)
+                        while true do
+                            if (v270 == (0 + 0)) then
+                                v171 = math.clamp(v171, 1 + 4, 30 + 70)
+                                venus.FOV.Size = v171
+                                v270 = 1
+                            end
+                            if (v270 == (1 + 0)) then
+                                if circleInstance then
+                                    circleInstance.Radius = v171
+                                end
+                                break
+                            end
+                        end
+                    else
+                        FOVSizeTextBox:SetText(tostring(venus.FOV.Size))
+                    end
+                    break
+                end
+            end
+        end}
+)
+local v79 = Drawing.new("Circle")
+v79.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
+v79.Radius = venus.FOV.Size
+v79.Color = Color3.fromRGB(255, 784 - (406 + 123), 2024 - (1749 + 20))
+v79.Thickness = 1
+v79.Filled = false
+v79.Visible = false
+local v87 = v79
+RunService.PostSimulation:Connect(
+    function()
+        local v172 = tick()
+        if CrosshairEnabled then
+            local v229 = 0 + 0
+            local v230
+            while true do
+                if (v229 == (1322 - (1249 + 73))) then
+                    v230 = Camera.ViewportSize / 2
+                    v79.Visible = true
+                    v229 = 1 + 0
+                end
+                if (v229 == (1146 - (466 + 679))) then
+                    v79.Filled = circleFilled
+                    v79.Position = v230
+                    break
+                end
+            end
+        else
+            v79.Visible = false
+        end
+    end
+)
+v11:DrawCategory({Name = "Misc"})
+local v88 = v11:DrawTab({Name = "Misc", Icon = "settings", EnableScrolling = true})
+local v89 = v88:DrawSection({Name = "Combat", Position = "left"})
+v89:AddButton(
+    {
+        Name = "Rapid Shoot HC",
+        Callback = function()
+            local v173 = 0
+            while true do
+                if (v173 == 0) then
+                    game:GetService("RunService").RenderStepped:Connect(
+                        function()
+                            local v245 = 0 - 0
+                            while true do
+                                if (v245 == (2 - 1)) then
+                                    game.Players.LocalPlayer.Character.BodyEffects.Reloading_CLIENT.Value = false
+                                    game.Players.LocalPlayer.Character.BodyEffects.Reloading.Value = false
+                                    break
+                                end
+                                if (v245 == 0) then
+                                    game.Players.LocalPlayer.Character.BodyEffects.Attacking.Value = false
+                                    game.Players.LocalPlayer.Character.BodyEffects.Attacking_CLIENT.Value = false
+                                    v245 = 1901 - (106 + 1794)
+                                end
+                            end
+                        end
+                    )
+                    NotificationSystem.new(
+                        {
+                            Title = "Success",
+                            Content = "Rapid Shoot HC enabled!",
+                            Duration = 1 + 2,
+                            Icon = "rbxassetid://120245531583106"
+                        }
+                    )
+                    break
+                end
+            end
+        end
+    }
+)
+v89:AddButton(
+    {
+        Name = "Pos Desync",
+        Callback = function()
+            getgenv().astro = {
+                cframetpdesync = false,
+                keybind = Enum.KeyCode.F,
+                cframetpdesynctype = "Custom",
+                canglelol = "Custom",
+                visualizemodellol = true,
+                customcframetpx = 0 + 0,
+                customcframetpy = -(23.5 - 15),
+                customcframetpz = 0 - 0,
+                canglelolx = 114 - (4 + 110),
+                cangleloly = 584 - (57 + 527),
+                canglelolz = 1427 - (41 + 1386)
+            }
+            local v175 = game.Players.LocalPlayer
+            local v176 = workspace.CurrentCamera
+            local v177 = v175.Character.HumanoidRootPart.CFrame
+            local v178 = {}
+            local v179 = game:GetObjects("rbxassetid://9474737816")[104 - (17 + 86)]
+            v179.Head.Face:Destroy()
+            for v200, v201 in pairs(v179:GetChildren()) do
+                local v202 = 0 + 0
+                while true do
+                    if (v202 == (1 - 0)) then
+                        v201.Color = Color3.fromRGB(550 - 360, 305 - (122 + 44), 440 - 185)
+                        v201.CanCollide = false
+                        v202 = 6 - 4
+                    end
+                    if (v202 == 2) then
+                        v201.Anchored = false
+                        break
+                    end
+                    if (v202 == (0 + 0)) then
+                        v201.Transparency = ((v201.Name == "HumanoidRootPart") and (1 + 0)) or (0 - 0)
+                        v201.Material = Enum.Material.ForceField
+                        v202 = 66 - (30 + 35)
+                    end
+                end
+            end
+            local v180
+            game:GetService("RunService").Heartbeat:Connect(
+                function()
+                    if
+                        (getgenv().astro.cframetpdesync and v175.Character and
+                            v175.Character:FindFirstChild("HumanoidRootPart"))
+                     then
+                        local v237 = 0 + 0
+                        local v238
+                        while true do
+                            if (v237 == (1260 - (1043 + 214))) then
+                                v175.Character.HumanoidRootPart.CFrame = v238
+                                v176.CFrame = v180
+                                v237 = 15 - 11
+                            end
+                            if (v237 == (1213 - (323 + 889))) then
+                                v238 =
+                                    v238 *
+                                    CFrame.new(
+                                        getgenv().astro.customcframetpx,
+                                        getgenv().astro.customcframetpy,
+                                        getgenv().astro.customcframetpz
+                                    )
+                                if (getgenv().astro.canglelol == "Custom") then
+                                    v238 =
+                                        v238 *
+                                        CFrame.Angles(
+                                            getgenv().astro.canglelolx,
+                                            getgenv().astro.cangleloly,
+                                            getgenv().astro.canglelolz
+                                        )
+                                end
+                                v237 = 5 - 3
+                            end
+                            if (v237 == (584 - (361 + 219))) then
+                                game:GetService("RunService").RenderStepped:Wait()
+                                v175.Character.HumanoidRootPart.CFrame = v178[1]
+                                break
+                            end
+                            if (v237 == 0) then
+                                v178[321 - (53 + 267)] = v175.Character.HumanoidRootPart.CFrame
+                                v238 = v178[1 + 0]
+                                v237 = 414 - (15 + 398)
+                            end
+                            if (v237 == 2) then
+                                if getgenv().astro.visualizemodellol then
+                                    local v317 = 0
+                                    while true do
+                                        if (v317 == (982 - (18 + 964))) then
+                                            if v179 then
+                                                v179.Parent = workspace
+                                            end
+                                            v179:SetPrimaryPartCFrame(v238)
+                                            break
+                                        end
+                                    end
+                                elseif (v179 and v179.Parent) then
+                                    v179.Parent = nil
+                                end
+                                if not v180 then
+                                    local v318 = 0 - 0
+                                    while true do
+                                        if ((0 + 0) == v318) then
+                                            v180 = v176.CFrame
+                                            v176.CameraType = Enum.CameraType.Scriptable
+                                            break
+                                        end
+                                    end
+                                end
+                                v237 = 2 + 1
+                            end
+                        end
+                    else
+                        local v239 = 0
+                        while true do
+                            if ((850 - (20 + 830)) == v239) then
+                                if (v179 and v179.Parent) then
+                                    v179.Parent = nil
+                                end
+                                if v180 then
+                                    local v320 = 0 + 0
+                                    while true do
+                                        if (v320 == (126 - (116 + 10))) then
+                                            v176.CameraType = Enum.CameraType.Custom
+                                            v180 = nil
+                                            break
+                                        end
+                                    end
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+            )
+            game:GetService("UserInputService").InputBegan:Connect(
+                function(v203, v204)
+                    local v205 = 0 + 0
+                    while true do
+                        if (v205 == 0) then
+                            if v204 then
+                                return
+                            end
+                            if (v203.KeyCode == getgenv().astro.keybind) then
+                                getgenv().astro.cframetpdesync = not getgenv().astro.cframetpdesync
+                            end
+                            break
+                        end
+                    end
+                end
+            )
+            NotificationSystem.new(
+                {
+                    Title = "Success",
+                    Content = "Position Desync loaded! Press F to toggle",
+                    Duration = 3,
+                    Icon = "rbxassetid://120245531583106"
+                }
+            )
+        end
+    }
+)
+v89:AddButton(
+    {
+        Name = "No Jump Cooldown",
+        Callback = function()
+            if not game.IsLoaded(game) then
+                game.Loaded.Wait(game.Loaded)
+            end
+            local v181 = game.IsA
+            local v182 = nil
+            v182 =
+                hookmetamethod(
+                game,
+                "__newindex",
+                function(v206, v207, v208)
+                    local v209 = 738 - (542 + 196)
+                    while true do
+                        if ((0 - 0) == v209) then
+                            if (not checkcaller() and v181(v206, "Humanoid") and (v207 == "JumpPower")) then
+                                return
+                            end
+                            return v182(v206, v207, v208)
+                        end
+                    end
+                end
+            )
+            NotificationSystem.new(
+                {
+                    Title = "Success",
+                    Content = "No Jump Cooldown enabled!",
+                    Duration = 3,
+                    Icon = "rbxassetid://120245531583106"
+                }
+            )
+        end
+    }
+)
+local v90 = v88:DrawSection({Name = "Speed Walk", Position = "left"})
+local v91 =
+    v90:AddButton(
+    {
+        Name = "Mooze speedwalk larp",
+        Callback = function()
+            loadstring(
+                game:HttpGet(
+                    "https://raw.githubusercontent.com/19mdSkibidi/19sMooze-Mobile-Rework/refs/heads/main/Mooze%20Mob"
+                )
+            )()
+        end
+    }
+)
+local v92 = v88:DrawSection({Name = "Anti Slow", Position = "left"})
+local v93 =
+    v92:AddButton(
+    {Name = "Anti Slow", Callback = function()
+            loadstring(game:HttpGet("https://pastebin.com/raw/MQuEJyU3"))()
+        end}
+)
+local v94 = v88:DrawSection({Name = "Animations", Position = "right"})
+local v95 =
+    v94:AddButton(
+    {Name = "Anim Mage", Callback = function()
+            loadstring(game:HttpGet("https://pastebin.com/raw/K3MwtPhv"))()
+        end}
+)
+local v96 = v88:DrawSection({Name = "Hitbox Expander", Position = "right"})
+local v97 =
+    v96:AddToggle(
+    {Name = "Enable Hitbox Expander", Flag = "Hitbox_Enabled", Default = false, Callback = function(v183)
+            getgenv().HitboxExpander = v183
+        end}
+)
+local v98 =
+    v96:AddTextBox(
+    {Name = "Hitbox Size", Flag = "Hitbox_Size_Text", Default = "25", Callback = function(v185)
+            local v186 = 0 + 0
+            local v187
+            while true do
+                if (v186 == (0 + 0)) then
+                    v187 = tonumber(v185)
+                    if v187 then
+                        local v274 = 0
+                        while true do
+                            if (v274 == 0) then
+                                v187 = math.clamp(v187, 2 + 3, 50)
+                                getgenv().HitboxSize = v187
+                                break
+                            end
+                        end
+                    else
+                        HitboxSizeTextBox:SetText(tostring(getgenv().HitboxSize))
+                    end
+                    break
+                end
+            end
+        end}
+)
+task.spawn(
+    function()
+        while task.wait(12 - 7) do
+            if getgenv().HitboxExpander then
+                for v252, v253 in ipairs(Players:GetPlayers()) do
+                    if
+                        ((v253.UserId ~= LocalPlayer.UserId) and v253.Character and
+                            v253.Character:FindFirstChildOfClass("Humanoid") and
+                            v253.Character:FindFirstChildOfClass("Humanoid").RootPart)
+                     then
+                        local v293 = 0
+                        local v294
+                        local v295
+                        while true do
+                            if (v293 == (0 - 0)) then
+                                v294 = v253.Character:FindFirstChildOfClass("Humanoid")
+                                v295 = v294.RootPart
+                                v293 = 1
+                            end
+                            if (1 == v293) then
+                                v295.CanCollide = false
+                                v295.Size =
+                                    Vector3.new(getgenv().HitboxSize, getgenv().HitboxSize, getgenv().HitboxSize)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+)
+local v99 = v88:DrawSection({Name = "Force Hit", Position = "right"})
+local v100 =
+    v99:AddToggle(
+    {Name = "Enable Force Hit", Flag = "ForceHit_Enabled", Default = false, Callback = function(v188)
+            forceHitEnabled = v188
+        end}
+)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local v101 = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local v102 = {
+    enabled = false,
+    value = "...",
+    position = Vector3.new(0, 1551 - (1126 + 425), 405 - (118 + 287)),
+    part = nil
+}
+local function v103()
+    local v189 = nil
+    local v190 = math.huge
+    local v191 =
+        (v101:FindFirstChild("HumanoidRootPart") and v101.HumanoidRootPart.Position) or LocalPlayer:GetMouse().Hit.Position
+    for v210, v211 in ipairs(Players:GetPlayers()) do
+        if ((v211 ~= LocalPlayer) and v211.Character) then
+            local v240 = v211.Character:FindFirstChild("HumanoidRootPart")
+            if v240 then
+                local v275 = 0
+                local v276
+                while true do
+                    if (v275 == 0) then
+                        v276 = (v240.Position - v191).Magnitude
+                        if (v276 < v190) then
+                            v190 = v276
+                            v189 = v211
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+    return v189
+end
+local function v104()
+    local v192 = 0 - 0
+    local v193
+    while true do
+        if ((1122 - (118 + 1003)) == v192) then
+            if (v193 and v193.Character) then
+                local v277 = 0 - 0
+                local v278
+                local v279
+                while true do
+                    if (v277 == (378 - (142 + 235))) then
+                        if (v278 and v279) then
+                            local v341 = 0
+                            while true do
+                                if (v341 == 0) then
+                                    v102.value = v193.Name
+                                    v102.position = v279.Position
+                                    v341 = 4 - 3
+                                end
+                                if (v341 == (1 + 0)) then
+                                    v102.part = v278
+                                    break
+                                end
+                            end
+                        end
+                        break
+                    end
+                    if (v277 == (977 - (553 + 424))) then
+                        v278 = v193.Character:FindFirstChild("Head")
+                        v279 = v193.Character:FindFirstChild("HumanoidRootPart")
+                        v277 = 1 - 0
+                    end
+                end
+            end
+            break
+        end
+        if (v192 == (0 + 0)) then
+            if not forceHitEnabled then
+                return
+            end
+            v193 = v103()
+            v192 = 1
+        end
+    end
+end
+game:GetService("RunService").Heartbeat:Connect(v104)
+local v105 = {}
+v105.Remote =
+    hookmetamethod(
+    game,
+    "__namecall",
+    newcclosure(
+        function(v194, ...)
+            local v195 = 0 + 0
+            local v196
+            local v197
+            while true do
+                if (v195 == (1 + 0)) then
+                    if
+                        (forceHitEnabled and v102.position and v102.part and (v197 == "fireserver") and
+                            (v194.Name == "MainEvent") and
+                            (v196[1] == "ShootGun"))
+                     then
+                        v196[2 + 2] = v102.position
+                        v196[3 + 2] = v102.part
+                        v196[6] = Vector3.new(0, 0 - 0, 0)
+                        return v105.Remote(v194, unpack(v196))
+                    end
+                    return v105.Remote(v194, ...)
+                end
+                if (v195 == (0 - 0)) then
+                    v196 = {...}
+                    v197 = getnamecallmethod():lower()
+                    v195 = 2 - 1
+                end
+            end
+        end
+    )
+)
+NotificationSystem.new(
+    {
+        Title = "Success",
+        Content = "Unnamed initialized successfully!",
+        Duration = 2 + 3,
+        Icon = "rbxassetid://120245531583106"
+    }
+)
